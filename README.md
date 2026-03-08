@@ -3,7 +3,7 @@
 <table align="center">
   <tr>
     <td>
-        <div style="display: flex, align-items: center">
+        <div style="display: flex; align-items: center">
             <img
                 src="https://upload.wikimedia.org/wikipedia/commons/8/82/Telegram_logo.svg"
                 width="100"
