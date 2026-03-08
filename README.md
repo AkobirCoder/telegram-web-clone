@@ -4,7 +4,7 @@
   <tr>
     <td>
         <img 
-            src="https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/telegram.svg" 
+            src="https://upload.wikimedia.org/wikipedia/commons/8/82/Telegram_logo.svg"
             width="70" 
         />
         <span style="font-size:30px;">⚡</span>
