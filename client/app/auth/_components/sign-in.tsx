@@ -14,7 +14,7 @@ const SignIn = () => {
     const form = useForm<z.infer<typeof emailSchema>>({
         resolver: zodResolver(emailSchema),
         defaultValues: {
-            email: ''
+            email: '',
         },
     });
 
