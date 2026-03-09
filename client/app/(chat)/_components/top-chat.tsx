@@ -12,7 +12,7 @@ const TopChat = () => {
             className={`
                 w-full flex items-center justify-between 
                 sticky top-0 z-50 h-[8vh] 
-                p-2 border-b border-b-gray-700 bg-background
+                p-2 border-b border-b-zinc-300 dark:border-b-zinc-700 bg-background
             `}
         >
             <div className='flex items-center'>
@@ -49,7 +49,11 @@ const TopChat = () => {
                 </div>
             </div>
 
-            <Button size={'icon'} variant={'secondary'}>
+            <Button 
+                className='border border-zinc-300 dark:border-0' 
+                size={'icon'} 
+                variant={'secondary'}
+            >
                 <Settings2 />
             </Button>
         </div>
