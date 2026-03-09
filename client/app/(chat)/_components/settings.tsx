@@ -5,7 +5,11 @@ import React from 'react';
 const Settings = () => {
     return (
         <>
-            <Button size={'icon'} variant={'secondary'}>
+            <Button
+                className='border border-zinc-300 dark:border-0' 
+                size={'icon'} 
+                variant={'secondary'}
+            >
                 <Menu />
             </Button>
         </>
