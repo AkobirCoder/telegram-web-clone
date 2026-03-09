@@ -1,3 +1,4 @@
+import { ThemeProvider } from "@/components/provider/theme-provider";
 import "./globals.css";
 import type { Metadata } from "next";
 import { Space_Grotesk } from "next/font/google";
@@ -25,7 +26,14 @@ export default function RootLayout({
             <body
                 className={`${spaceGrotesk.className} antialiased`} suppressHydrationWarning
             >
-                {children}
+                <ThemeProvider
+                    attribute={'class'}
+                    defaultTheme='system'
+                    enableSystem
+                    disableTransitionOnChange
+                >
+                    {children}
+                </ThemeProvider>
             </body>
         </html>
     );
