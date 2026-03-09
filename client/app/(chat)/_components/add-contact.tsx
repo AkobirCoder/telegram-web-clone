@@ -30,7 +30,11 @@ const AddContact: FC<Props> = ({contactForm, onCreateContact}) => {
                                     <FormItem>
                                         <FormLabel>Email</FormLabel>
                                         <FormControl>
-                                            <Input placeholder='example@gmail.com' className='h-10 bg-secondary' {...field} />
+                                            <Input 
+                                                placeholder='example@gmail.com' 
+                                                className='h-10 bg-secondary' 
+                                                {...field} 
+                                            />
                                         </FormControl>
                                         <FormMessage className='text-xs text-red-500 mt-1' />
                                     </FormItem>
