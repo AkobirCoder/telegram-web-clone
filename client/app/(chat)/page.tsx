@@ -1,8 +1,40 @@
+'use client'
+
 import { Loader2 } from 'lucide-react';
-import React from 'react';
+import React, { useEffect } from 'react';
 import ContactList from './_components/contact-list';
+import { useRouter } from 'next/navigation';
+import AddContact from './_components/add-contact';
+import { useCurrentContact } from '@/hooks/use-current';
+import { useForm } from 'react-hook-form';
+import z from 'zod';
+import { emailSchema } from '@/lib/validation';
+import { zodResolver } from '@hookform/resolvers/zod';
+import TopChat from './_components/top-chat';
+import Chat from './_components/chat';
 
 const HomePage = () => {
+    const {currentContact} = useCurrentContact(); 
+
+    const router = useRouter();
+
+    const contactForm = useForm<z.infer<typeof emailSchema>>({
+        resolver: zodResolver(emailSchema),
+        defaultValues: {
+            email: '',
+        },
+    });
+
+    useEffect(() => {
+        router.replace('/');
+    }, []);
+
+    const onCreateContact = (values: z.infer<typeof emailSchema>) => {
+        // API call to create contact
+
+        console.log(values);
+    }
+
     const contacts = [
         {
             _id: '1',
@@ -44,12 +76,36 @@ const HomePage = () => {
                 {/* --- Contact list --- */}
                 <ContactList contacts={contacts} />
                 {/* --- Contact list --- */}
-                
             </div>
             {/* --- Sidebar --- */}
 
             {/* --- Chat Area --- */}
+            <div className='pl-80 w-full'>
+                {/* --- Add contact --- */}
+                {
+                    !currentContact?._id && <AddContact
+                        contactForm={contactForm}
+                        onCreateContact={onCreateContact}
+                    />
+                }
+                {/* --- Add contact --- */}
 
+                {/* --- Chat --- */}
+                {
+                    currentContact?._id && (
+                        <div className='w-full relative'>
+                            {/* --- Top chat --- */}
+                            <TopChat />
+                            {/* --- Top chat --- */}
+
+                            {/* --- Chat message --- */}
+                            <Chat />
+                            {/* --- Chat message --- */}
+                        </div>
+                    )
+                }
+                {/* --- Chat --- */}
+            </div>
             {/* --- Chat Area --- */}
         </>
     );
