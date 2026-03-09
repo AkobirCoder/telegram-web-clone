@@ -8,7 +8,7 @@ import AddContact from './_components/add-contact';
 import { useCurrentContact } from '@/hooks/use-current';
 import { useForm } from 'react-hook-form';
 import z from 'zod';
-import { emailSchema } from '@/lib/validation';
+import { emailSchema, messageSchema } from '@/lib/validation';
 import { zodResolver } from '@hookform/resolvers/zod';
 import TopChat from './_components/top-chat';
 import Chat from './_components/chat';
@@ -25,12 +25,26 @@ const HomePage = () => {
         },
     });
 
+    const messageForm = useForm<z.infer<typeof messageSchema>>({
+        resolver: zodResolver(messageSchema),
+        defaultValues: {
+            text: '',
+            image: '',
+        },
+    });
+
     useEffect(() => {
         router.replace('/');
     }, []);
 
     const onCreateContact = (values: z.infer<typeof emailSchema>) => {
         // API call to create contact
+
+        console.log(values);
+    }
+
+    const onSendMessage = (values: z.infer<typeof messageSchema>) => {
+        // API call to send message
 
         console.log(values);
     }
@@ -66,7 +80,7 @@ const HomePage = () => {
     return (
         <>
             {/* --- Sidebar --- */}
-            <div className='w-80 h-screen border-r border-r-gray-700 fixed inset-0 z-50'>
+            <div className='w-80 h-screen border-r border-r-zinc-300 dark:border-r-zinc-700 fixed inset-0 z-50'>
                 {/* --- Loading --- */}
                 {/* <div className='w-full h-[95vh] flex justify-center items-center'>
                     <Loader2 size={50} className='animate-spin' />
@@ -99,7 +113,10 @@ const HomePage = () => {
                             {/* --- Top chat --- */}
 
                             {/* --- Chat message --- */}
-                            <Chat />
+                            <Chat
+                                messageForm={messageForm} 
+                                onSendMessage={onSendMessage}
+                            />
                             {/* --- Chat message --- */}
                         </div>
                     )
