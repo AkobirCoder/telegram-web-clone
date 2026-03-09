@@ -6,8 +6,11 @@ import z from 'zod';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import { useAuth } from '@/hooks/use-auth';
 
 const SignIn = () => {
+    const {setEmail, setStep} = useAuth();
+
     const form = useForm<z.infer<typeof emailSchema>>({
         resolver: zodResolver(emailSchema),
         defaultValues: {
@@ -16,7 +19,11 @@ const SignIn = () => {
     });
 
     function onSubmit(values: z.infer<typeof emailSchema>) {
-        console.log(values);
+        // API call to verify OTP
+
+        setStep('verify'); // onSubmit ishlaganda stepni verify qilish
+
+        setEmail(values.email); // sign-in da kiritilgan emailni global state ga saqlash
     }
 
     return (
