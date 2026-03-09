@@ -1,7 +1,7 @@
 import React from 'react';
 import { FaTelegram } from 'react-icons/fa';
-import StateAuth from './_component/state';
-import Social from './_component/social';
+import StateAuth from './_components/state';
+import Social from './_components/social';
 import { ModeToggle } from '@/components/shared/mode-toggle';
 
 const Page = () => {
