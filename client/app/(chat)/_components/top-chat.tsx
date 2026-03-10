@@ -1,7 +1,10 @@
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
+import { Separator } from '@/components/ui/separator';
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { useCurrentContact } from '@/hooks/use-current';
 import { Settings2 } from 'lucide-react';
+import Image from 'next/image';
 import React from 'react';
 
 const TopChat = () => {
@@ -12,13 +15,20 @@ const TopChat = () => {
             className={`
                 w-full flex items-center justify-between 
                 sticky top-0 z-50 h-[8vh] 
-                p-2 border-b border-b-zinc-300 dark:border-b-zinc-700 bg-background
+                p-2 border-b border-b-zinc-300 dark:border-b-zinc-700 
+                bg-background/50 backdrop-blur-sm
             `}
         >
             <div className='flex items-center'>
                 <Avatar className='z-40'>
-                    <AvatarImage src={currentContact?.avatar} alt={currentContact?.email} className='object-cover' />
-                    <AvatarFallback className='uppercase'>{currentContact?.email[0]}</AvatarFallback>
+                    <AvatarImage 
+                        src={currentContact?.avatar} 
+                        alt={currentContact?.email} 
+                        className='object-cover'
+                    />
+                    <AvatarFallback className='uppercase'>
+                        {currentContact?.email[0]}
+                    </AvatarFallback>
                 </Avatar>
                 <div className='ml-2'>
                     <h2 className='font-medium text-sm'>{currentContact?.email}</h2>
@@ -49,13 +59,123 @@ const TopChat = () => {
                 </div>
             </div>
 
-            <Button 
-                className='border border-zinc-300 dark:border-0' 
-                size={'icon'} 
-                variant={'secondary'}
-            >
-                <Settings2 />
-            </Button>
+            <Sheet>
+                <SheetTrigger asChild>
+                    <Button 
+                        className='border border-zinc-300 dark:border-0' 
+                        size={'icon'} 
+                        variant={'secondary'}
+                    >
+                        <Settings2 />
+                    </Button>
+                </SheetTrigger>
+                <SheetContent className='p-4'>
+                    <SheetHeader>
+                        <SheetTitle />
+                    </SheetHeader>
+                    <div className='mx-auto h-36 relative'>
+                        <Avatar className='w-full h-36'>
+                            <AvatarImage 
+                                src={currentContact?.avatar} 
+                                alt={currentContact?.email} 
+                                className='object-cover' 
+                            />
+                            <AvatarFallback
+                                className='text-6xl uppercase'
+                            >  
+                                {currentContact?.email[0]}
+                            </AvatarFallback>
+                        </Avatar>
+                    </div>
+
+                    <Separator className='my-2' />
+
+                    <h1 className='text-center text-xl'>
+                        {currentContact?.email}
+                    </h1>
+
+                    <div className='flex flex-col space-y-1'>
+                        {
+                            currentContact?.firstName && (
+                                <div className='flex items-center gap-1 mt-2'>
+                                    <p>First name: </p>
+                                    <p className='text-muted-foreground'>
+                                        {currentContact.firstName}
+                                    </p>
+                                </div>
+                            )
+                        }
+                        {
+                            currentContact?.lastName && (
+                                <div className='flex items-center gap-1 mt-2'>
+                                    <p>Last name: </p>
+                                    <p className='text-muted-foreground'>
+                                        {currentContact.lastName}
+                                    </p>
+                                </div>
+                            )
+                        }
+                        {
+                            currentContact?.bio && (
+                                <div className='flex items-center gap-1 mt-2'>
+                                    <p>
+                                        About: <span className='text-muted-foreground text-justify'>
+                                            {currentContact.bio}
+                                        </span>
+                                    </p>
+                                </div>
+                            )
+                        }
+                    </div>
+
+                    <Separator className='my-2' />
+
+                    <h2 className='text-xl'>Image</h2>
+                    <div className='grid grid-cols-2 gap-2'>
+                        <div className='w-full h-36 relative'>
+                            <Image 
+                                src={'https://github.com/shadcn.png'}
+                                alt={'https://github.com/shadcn.png'}
+                                fill
+                                className='object-cover rounded-md'
+                            />
+                        </div>
+                        <div className='w-full h-36 relative'>
+                            <Image 
+                                src={'https://github.com/shadcn.png'}
+                                alt={'https://github.com/shadcn.png'}
+                                fill
+                                className='object-cover rounded-md'
+                            />
+                        </div>
+                        <div className='w-full h-36 relative'>
+                            <Image 
+                                src={'https://github.com/shadcn.png'}
+                                alt={'https://github.com/shadcn.png'}
+                                fill
+                                className='object-cover rounded-md'
+                            />
+                        </div>
+                        <div className='w-full h-36 relative'>
+                            <Image 
+                                src={'https://github.com/shadcn.png'}
+                                alt={'https://github.com/shadcn.png'}
+                                fill
+                                className='object-cover rounded-md'
+                            />
+                        </div>
+                        <div className='w-full h-36 relative'>
+                            <Image 
+                                src={'https://github.com/shadcn.png'}
+                                alt={'https://github.com/shadcn.png'}
+                                fill
+                                className='object-cover rounded-md'
+                            />
+                        </div>
+                    </div>
+                </SheetContent>
+            </Sheet>
+            
         </div>
     );
 }
