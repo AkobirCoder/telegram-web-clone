@@ -54,26 +54,41 @@ const HomePage = () => {
             _id: '1',
             email: 'akobir@gmail.com',
             avatar: 'https://github.com/shadcn.png',
+            firstName: 'Akobir',
+            lastName: 'Usmonov',
+            bio: 'Lorem ipsum dolor, sit amet consectetur adipisicing elit. Facere, omnis! Unde eaque incidunt sit vero ratione facilis voluptate placeat labore.'
         },
         {
             _id: '2',
             email: 'zoe@gmail.com',
             avatar: 'https://github.com/shadcn.png',
+            firstName: 'Zoe',
+            lastName: 'Nill',
+            bio: 'Lorem ipsum dolor, sit amet consectetur adipisicing elit. Facere, omnis! Unde eaque incidunt sit vero ratione facilis voluptate placeat labore.'
         },
         {
             _id: '3',
             email: 'jhondoe@gmail.com',
             avatar: 'https://github.com/shadcn.png',
+            firstName: 'Jhon',
+            lastName: 'Doe',
+            bio: 'Lorem ipsum dolor, sit amet consectetur adipisicing elit. Facere, omnis! Unde eaque incidunt sit vero ratione facilis voluptate placeat labore.'
         },
         {
             _id: '4',
             email: 'kamikadze@gmail.com',
             avatar: 'https://github.com/shadcn.png',
+            firstName: 'Hiroku',
+            lastName: 'Kamiratu',
+            bio: 'Lorem ipsum dolor, sit amet consectetur adipisicing elit. Facere, omnis! Unde eaque incidunt sit vero ratione facilis voluptate placeat labore.'
         },
         {
             _id: '5',
             email: 'simple@gmail.com',
             avatar: 'https://github.com/shadcn.png',
+            firstName: 'Sayed',
+            lastName: 'AliYusuf',
+            bio: 'Lorem ipsum dolor, sit amet consectetur adipisicing elit. Facere, omnis! Unde eaque incidunt sit vero ratione facilis voluptate placeat labore.'
         },
     ];
 
