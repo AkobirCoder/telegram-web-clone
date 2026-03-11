@@ -1,7 +1,8 @@
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
+import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { useCurrentContact } from '@/hooks/use-current';
 import { Settings2 } from 'lucide-react';
 import Image from 'next/image';
@@ -69,9 +70,15 @@ const TopChat = () => {
                         <Settings2 />
                     </Button>
                 </SheetTrigger>
-                <SheetContent className='p-4'>
-                    <SheetHeader>
-                        <SheetTitle />
+                <SheetContent 
+                    className='p-4 border-l border-l-zinc-300 dark:border-l-zinc-700' 
+                    aria-describedby='undefined'
+                >
+                    <SheetHeader className='p-0'>
+                        <SheetTitle>Contact info.</SheetTitle>
+                        <SheetDescription>
+                            Information about the current contact.
+                        </SheetDescription>
                     </SheetHeader>
                     <div className='mx-auto h-36 relative'>
                         <Avatar className='w-full h-36'>
@@ -118,8 +125,8 @@ const TopChat = () => {
                         {
                             currentContact?.bio && (
                                 <div className='flex items-center gap-1 mt-2'>
-                                    <p>
-                                        About: <span className='text-muted-foreground text-justify'>
+                                    <p className='text-justify'>
+                                        About: <span className='text-muted-foreground'>
                                             {currentContact.bio}
                                         </span>
                                     </p>
@@ -131,51 +138,75 @@ const TopChat = () => {
                     <Separator className='my-2' />
 
                     <h2 className='text-xl'>Image</h2>
-                    <div className='grid grid-cols-2 gap-2'>
-                        <div className='w-full h-36 relative'>
-                            <Image 
-                                src={'https://github.com/shadcn.png'}
-                                alt={'https://github.com/shadcn.png'}
-                                fill
-                                className='object-cover rounded-md'
-                            />
+                    <ScrollArea className='h-63 w-full'>
+                        <div className='grid grid-cols-2 gap-2 pr-4'>
+                            <div className='w-full h-36 relative'>
+                                <Image 
+                                    src={'https://github.com/shadcn.png'}
+                                    alt={'https://github.com/shadcn.png'}
+                                    fill
+                                    sizes="(max-width: 768px) 100vw, 50vw"
+                                    className='object-cover rounded-md'
+                                />
+                            </div>
+                            <div className='w-full h-36 relative'>
+                                <Image 
+                                    src={'https://github.com/shadcn.png'}
+                                    alt={'https://github.com/shadcn.png'}
+                                    fill
+                                    sizes="(max-width: 768px) 100vw, 50vw"
+                                    className='object-cover rounded-md'
+                                />
+                            </div>
+                            <div className='w-full h-36 relative'>
+                                <Image 
+                                    src={'https://github.com/shadcn.png'}
+                                    alt={'https://github.com/shadcn.png'}
+                                    fill
+                                    sizes="(max-width: 768px) 100vw, 50vw"
+                                    className='object-cover rounded-md'
+                                />
+                            </div>
+                            <div className='w-full h-36 relative'>
+                                <Image 
+                                    src={'https://github.com/shadcn.png'}
+                                    alt={'https://github.com/shadcn.png'}
+                                    fill
+                                    sizes="(max-width: 768px) 100vw, 50vw"
+                                    className='object-cover rounded-md'
+                                />
+                            </div>
+                            <div className='w-full h-36 relative'>
+                                <Image 
+                                    src={'https://github.com/shadcn.png'}
+                                    alt={'https://github.com/shadcn.png'}
+                                    fill
+                                    sizes="(max-width: 768px) 100vw, 50vw"
+                                    className='object-cover rounded-md'
+                                />
+                            </div>
+                            <div className='w-full h-36 relative'>
+                                <Image 
+                                    src={'https://github.com/shadcn.png'}
+                                    alt={'https://github.com/shadcn.png'}
+                                    fill
+                                    sizes="(max-width: 768px) 100vw, 50vw"
+                                    className='object-cover rounded-md'
+                                />
+                            </div>
+                            <div className='w-full h-36 relative'>
+                                <Image 
+                                    src={'https://github.com/shadcn.png'}
+                                    alt={'https://github.com/shadcn.png'}
+                                    fill
+                                    sizes="(max-width: 768px) 100vw, 50vw"
+                                    className='object-cover rounded-md'
+                                />
+                            </div>
                         </div>
-                        <div className='w-full h-36 relative'>
-                            <Image 
-                                src={'https://github.com/shadcn.png'}
-                                alt={'https://github.com/shadcn.png'}
-                                fill
-                                className='object-cover rounded-md'
-                            />
-                        </div>
-                        <div className='w-full h-36 relative'>
-                            <Image 
-                                src={'https://github.com/shadcn.png'}
-                                alt={'https://github.com/shadcn.png'}
-                                fill
-                                className='object-cover rounded-md'
-                            />
-                        </div>
-                        <div className='w-full h-36 relative'>
-                            <Image 
-                                src={'https://github.com/shadcn.png'}
-                                alt={'https://github.com/shadcn.png'}
-                                fill
-                                className='object-cover rounded-md'
-                            />
-                        </div>
-                        <div className='w-full h-36 relative'>
-                            <Image 
-                                src={'https://github.com/shadcn.png'}
-                                alt={'https://github.com/shadcn.png'}
-                                fill
-                                className='object-cover rounded-md'
-                            />
-                        </div>
-                    </div>
+                    </ScrollArea>
                 </SheetContent>
             </Sheet>
-            
         </div>
     );
 }
