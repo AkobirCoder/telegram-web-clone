@@ -20,11 +20,22 @@ export function ModeToggle() {
         <>
             {
                 resolvedTheme === 'dark' ? (
-                    <Button className="bg-secondary border border-zinc-300 dark:border-0" size={'icon'} variant={'ghost'} onClick={() => setTheme('light')}>
+                    <Button 
+                        className="bg-secondary border border-zinc-300 dark:border-0" 
+                        size={'icon'} 
+                        variant={'ghost'} 
+                        onClick={() => setTheme('light')
+                        
+                        }>
                         <Sun />
                     </Button>
                 ): (
-                    <Button className="bg-secondary border border-zinc-300 dark:border-0" size={'icon'} variant={'ghost'} onClick={() => setTheme('dark')}>
+                    <Button 
+                        className="bg-secondary border border-zinc-300 dark:border-0" 
+                        size={'icon'} 
+                        variant={'ghost'} 
+                        onClick={() => setTheme('dark')}
+                    >
                         <Moon />
                     </Button>
                 )
