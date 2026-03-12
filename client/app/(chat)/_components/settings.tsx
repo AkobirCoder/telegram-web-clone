@@ -40,7 +40,7 @@ const Settings = () => {
                         <Menu />
                     </Button>
                 </PopoverTrigger>
-                <PopoverContent className='p-0 mt-1 w-80 rounded-none'>
+                <PopoverContent className='p-0 pb-2 mt-1 w-80 rounded-none'>
                     <h2 className='pt-4 pl-2 text-muted-foreground'>
                         Settings: <span className='text-black dark:text-white'>
                             example@gmail.com
