@@ -75,9 +75,9 @@ const TopChat = () => {
                     aria-describedby='undefined'
                 >
                     <SheetHeader className='p-0'>
-                        <SheetTitle>Contact info.</SheetTitle>
+                        <SheetTitle>Contact info</SheetTitle>
                         <SheetDescription>
-                            Information about the current contact.
+                            Information about the current contact
                         </SheetDescription>
                     </SheetHeader>
                     <div className='mx-auto h-36 relative'>
