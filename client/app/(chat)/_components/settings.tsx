@@ -107,7 +107,7 @@ const Settings = () => {
                 <SheetContent side='left' className='w-80! p-4 border-r border-r-zinc-300 dark:border-r-zinc-700'>
                     <SheetHeader className='p-0'>
                         <SheetTitle className='text-2xl'>My profile</SheetTitle>
-                        <SheetDescription>This action cannot be undone.</SheetDescription>
+                        <SheetDescription>Customize profile</SheetDescription>
                     </SheetHeader>
 
                     <Separator className='my-2' />
