@@ -24,7 +24,16 @@ export const messageSchema = z.object({
 });
 
 export const profileSchema = z.object({
-    firstName: z.string().min(2),
+    firstName: z.string().min(1, {
+        message: 'Please enter you firstName',
+    }),
     lastName: z.string().optional(),
     bio: z.string().optional(),
+});
+
+export const confirmTextShema = z.object({
+    confirmText: z.string(),
+}).refine((data) => data.confirmText === 'DELETE', {
+    message: 'You must type DELETE to confirm',
+    path: ['confirmText'],
 });
