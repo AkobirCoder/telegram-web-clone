@@ -47,9 +47,9 @@ const NotificationForm = () => {
                                             )}
                                             onClick={() => onPlaySound(sound.value)}
                                         >
-                                            <Button size={'sm'} variant={'ghost'} className='justify-start'>
+                                            <div className='justify-start pl-2'>
                                                 {sound.label}
-                                            </Button>
+                                            </div>
                                             <Button size={'icon'} variant={'ghost'}>
                                                 <PlayCircle />
                                             </Button>
