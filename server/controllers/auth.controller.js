@@ -14,7 +14,7 @@ class AuthController {
             if (existUser) {
                 await mailService.sendOtp(existUser.email);
 
-                return res.status(200).json({message: "existing_user"});
+                return res.status(200).json({email: existUser.email});
             }
 
             // if (existUser) {
@@ -29,7 +29,7 @@ class AuthController {
 
             await mailService.sendOtp(newUser.email);
 
-            res.status(200).json({message: "new_user"});
+            res.status(200).json({email: newUser.email});
         } catch (error) {
             next(error);  
         }
