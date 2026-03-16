@@ -7,8 +7,36 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/hooks/use-auth';
+import { useMutation } from '@tanstack/react-query';
+import { axiosClient } from '@/http/axios';
+import { IError } from '@/types';
+import { toast } from 'sonner';
 
 const SignIn = () => {
+    const {mutate, isPending} = useMutation({
+        mutationFn: async (email: string) => {
+            const {data} = await axiosClient.post<{email: string}>('/api/auth/login', {email});
+
+            return data;
+        },
+
+        onSuccess: (res) => {
+            setEmail(res.email);
+
+            setStep('verify');
+
+            toast.success('Email sent');
+        },
+
+        onError: (error: IError) => {
+            if (error?.response?.data?.message) {
+                return toast.error(error.response.data.message);
+            } else {
+                return toast.error('Something went wrong');
+            }
+        }
+    })
+
     const {setEmail, setStep} = useAuth();
 
     const form = useForm<z.infer<typeof emailSchema>>({
@@ -21,9 +49,11 @@ const SignIn = () => {
     function onSubmit(values: z.infer<typeof emailSchema>) {
         // API call to verify OTP
 
-        setStep('verify'); // onSubmit ishlaganda stepni verify qilish
+        // setStep('verify'); // onSubmit ishlaganda stepni verify qilish
 
-        setEmail(values.email); // sign-in da kiritilgan emailni global state ga saqlash
+        // setEmail(values.email); // sign-in da kiritilgan emailni global state ga saqlash
+
+        mutate(values.email);
     }
 
     return (
@@ -42,13 +72,25 @@ const SignIn = () => {
                             <FormItem>
                                 <FormLabel>Email</FormLabel>
                                 <FormControl>
-                                    <Input placeholder='example@gmail.com' className='h-10 bg-secondary' {...field} />
+                                    <Input 
+                                        placeholder='example@gmail.com' 
+                                        className='h-10 bg-secondary' 
+                                        {...field} 
+                                        disabled={isPending}
+                                    />
                                 </FormControl>
                                 <FormMessage className='text-xs text-red-500 mt-1' />
                             </FormItem>
                         )}
                     />   
-                    <Button type='submit' className='w-full' size={'lg'}>Submit</Button>
+                    <Button 
+                        type='submit' 
+                        className='w-full' 
+                        size={'lg'} 
+                        disabled={isPending}
+                    >
+                        Submit
+                    </Button>
                 </form>
             </Form>
         </div>
