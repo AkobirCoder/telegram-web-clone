@@ -4,6 +4,7 @@ import type { Metadata } from "next";
 import { Space_Grotesk } from "next/font/google";
 import QueryProvider from "@/components/provider/query.provider";
 import { Toaster } from "@/components/ui/sonner";
+import SessionProvider from "@/components/provider/session.provider";
 
 const spaceGrotesk = Space_Grotesk({
     weight: ['300', '400', '500', '600', '700'],
@@ -24,23 +25,24 @@ export default function RootLayout({
     children: React.ReactNode;
 }>) {
     return (
-        <QueryProvider>
-            <html lang="en" suppressHydrationWarning>
-                <body
-                    className={`${spaceGrotesk.className} antialiased`} suppressHydrationWarning
-                >
-                    <ThemeProvider
-                        attribute={'class'}
-                        defaultTheme='system'
-                        enableSystem
-                        disableTransitionOnChange
+        <SessionProvider>
+            <QueryProvider>
+                <html lang="en" suppressHydrationWarning>
+                    <body
+                        className={`${spaceGrotesk.className} antialiased`} suppressHydrationWarning
                     >
-                        <main>{children}</main>
-                        <Toaster />
-                    </ThemeProvider>
-                </body>
-            </html>
-        </QueryProvider>
-        
+                        <ThemeProvider
+                            attribute={'class'}
+                            defaultTheme='system'
+                            enableSystem
+                            disableTransitionOnChange
+                        >
+                            <main>{children}</main>
+                            <Toaster />
+                        </ThemeProvider>
+                    </body>
+                </html>
+            </QueryProvider>
+        </SessionProvider>  
     );
 }
