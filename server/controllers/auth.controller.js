@@ -7,8 +7,6 @@ class AuthController {
         try {
             const {email} = req.body;
 
-            // await mailService.sendOtp(email);
-
             const existUser = await userModel.findOne({ email });
 
             if (existUser) {
@@ -16,14 +14,6 @@ class AuthController {
 
                 return res.status(200).json({email: existUser.email});
             }
-
-            // if (existUser) {
-            //     throw BaseError.BadRequest("User already exist", [{email: "User already exist"}]);
-            // }
-
-            // const createdUser = await userModel.create({ email });
-
-            // res.status(201).json({email});
 
             const newUser = await userModel.create({email});
 
@@ -42,9 +32,9 @@ class AuthController {
             const result = await mailService.verifyOtp(email, otp);
 
             if (result) {
-                await userModel.findOneAndUpdate({email}, {isVerified: true});
+                const user = await userModel.findOneAndUpdate({email}, {isVerified: true});
 
-                res.status(200).json({message: "Verified"});
+                res.status(200).json({user});
             } 
         } catch (error) {
             next(error);
