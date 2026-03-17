@@ -3,8 +3,15 @@ import { FaTelegram } from 'react-icons/fa';
 import StateAuth from './_components/state';
 import Social from './_components/social';
 import { ModeToggle } from '@/components/shared/mode-toggle';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth-options';
+import { redirect } from 'next/navigation';
 
-const Page = () => {
+const Page = async () => {
+    const session = await getServerSession(authOptions);
+
+    if (session) return redirect('/');
+
     return (
         <div className='m-auto max-w-md w-full h-screen flex justify-center items-center flex-col space-y-4'>
             <FaTelegram size={120} className='text-blue-500' />
