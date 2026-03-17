@@ -10,10 +10,13 @@ import { Separator } from '@/components/ui/separator';
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { Switch } from '@/components/ui/switch';
 import { LogIn, Menu, Moon, Settings2, Sun, Upload, UserPlus, VolumeOff } from 'lucide-react';
+import { signOut, useSession } from 'next-auth/react';
 import { useTheme } from 'next-themes';
 import React, { useState } from 'react';
 
 const Settings = () => {
+    const {data: session} = useSession();
+
     const {resolvedTheme, setTheme} = useTheme();
 
     const [isProfileOpen, setIsProfileOpen] = useState(false);
@@ -21,7 +24,7 @@ const Settings = () => {
     const showProfileHandler = () => {
         setIsProfileOpen((prevState) => {
             return !prevState;
-        })
+        });
     }
 
     // const switchModeHandler = (checked: boolean) => {
@@ -43,7 +46,13 @@ const Settings = () => {
                 <PopoverContent className='p-0 mt-1 w-80 rounded-none'>
                     <h2 className='pt-4 pl-2 text-muted-foreground'>
                         Settings: <span className='text-black dark:text-white'>
-                            example@gmail.com
+                            {
+                                session?.currentUser.email ? (
+                                    session?.currentUser.email
+                                ) : (
+                                    'example@gmail.com'
+                                )
+                            }
                         </span>
                     </h2>
 
@@ -93,7 +102,10 @@ const Settings = () => {
                             />
                         </div>
 
-                        <div className='flex items-center justify-between p-2 bg-destructive cursor-pointer'>
+                        <div 
+                            className='flex items-center justify-between p-2 bg-red-500 cursor-pointer'
+                            onClick={() => signOut()}
+                        >
                             <div className='flex items-center gap-1'>
                                 <LogIn size={16} />
                                 <span className='text-sm'>Logout</span>
