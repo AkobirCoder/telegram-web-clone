@@ -3,14 +3,41 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Input } from '@/components/ui/input';
 import { InputOTP, InputOTPGroup, InputOTPSeparator, InputOTPSlot } from '@/components/ui/input-otp';
 import { useAuth } from '@/hooks/use-auth';
+import { axiosClient } from '@/http/axios';
 import { otpSchema } from '@/lib/validation';
+import { IError, IUser } from '@/types';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useMutation } from '@tanstack/react-query';
 import { REGEXP_ONLY_DIGITS } from 'input-otp';
 import React from 'react';
 import { useForm } from 'react-hook-form';
+import { toast } from 'sonner';
 import z from 'zod';
+import { signIn } from 'next-auth/react';
 
 const Verify = () => {
+    const {mutate, isPending} = useMutation({
+        mutationFn: async (otp: string) => {
+            const {data} = await axiosClient.post<{user: IUser}>('/api/auth/verify', {email, otp});
+
+            return data;
+        },
+
+        onSuccess: ({user}) => {
+            signIn('credentials', {email: user.email, callbackUrl: '/'});
+
+            toast.success('Successfully verified');
+        },
+
+        onError: (error: IError) => {
+            if (error?.response?.data?.message) {
+                return toast.error(error.response.data.message);
+            } else {
+                return toast.error('Something went wrong');
+            }
+        }
+    });
+
     const {email} = useAuth();
 
     const form = useForm<z.infer<typeof otpSchema>>({
@@ -24,9 +51,11 @@ const Verify = () => {
     function onSubmit(values: z.infer<typeof otpSchema>) {
         // API call to verify OTP
 
-        console.log(values);
+        // console.log(values);
 
-        window.open('/', '_self'); // bosh sahifaga o'tkazish
+        // window.open('/', '_self'); // bosh sahifaga o'tkazish
+
+        mutate(values.otp);
     }
     
     return (
@@ -58,7 +87,7 @@ const Verify = () => {
                             <FormItem>
                                 <FormLabel>One-Time Password</FormLabel>
                                 <FormControl>
-                                    <InputOTP maxLength={6} className='w-full' pattern={REGEXP_ONLY_DIGITS} {...field}>
+                                    <InputOTP maxLength={6} className='w-full' pattern={REGEXP_ONLY_DIGITS} {...field} disabled={isPending}>
                                         <InputOTPGroup className='w-full'>
                                             <InputOTPSlot index={0} className='w-full h-10 dark:bg-zinc-800 bg-secondary' />
                                             <InputOTPSlot index={1} className='w-full h-10 dark:bg-zinc-800 bg-secondary' />
@@ -76,7 +105,14 @@ const Verify = () => {
                             </FormItem>
                         )}
                     />
-                    <Button type='submit' className='w-full' size={'lg'}>Submit</Button> 
+                    <Button 
+                        type='submit' 
+                        className='w-full' 
+                        size={'lg'} 
+                        disabled={isPending}
+                    >
+                        Submit
+                    </Button> 
                 </form>
             </Form>
         </div>
