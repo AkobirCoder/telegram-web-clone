@@ -20,8 +20,8 @@ const SignIn = () => {
             return data;
         },
 
-        onSuccess: (res) => {
-            setEmail(res.email);
+        onSuccess: ({email}) => {
+            setEmail(email);
 
             setStep('verify');
 
@@ -35,7 +35,7 @@ const SignIn = () => {
                 return toast.error('Something went wrong');
             }
         }
-    })
+    });
 
     const {setEmail, setStep} = useAuth();
 
