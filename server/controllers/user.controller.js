@@ -143,7 +143,7 @@ class UserController {
 
             const existUser = await userModel.findOne({email});
 
-            if (existUser) throw BaseError.BadRequest("User with this email does not exist");
+            if (!existUser) throw BaseError.BadRequest("User with this email does not exist");
 
             await mailService.sendOtp(email);
 
@@ -156,9 +156,9 @@ class UserController {
     // [PUT]
     async updateProfile(req, res, next) {
         try {
-            const {userId, ...payload} = req.body;
+            const user = req.user;
 
-            await userModel.findByIdAndUpdate(userId, payload);
+            await userModel.findByIdAndUpdate(user._id, req.body);
 
             res.status(200).json({message: "Profile updated successfully"});
         } catch (error) {
