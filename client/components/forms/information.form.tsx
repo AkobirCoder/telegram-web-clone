@@ -8,21 +8,59 @@ import { Label } from '../ui/label';
 import { Input } from '../ui/input';
 import { Textarea } from '../ui/textarea';
 import { Button } from '../ui/button';
+import { useMutation } from '@tanstack/react-query';
+import { axiosClient } from '@/http/axios';
+import { IError } from '@/types';
+import { toast } from 'sonner';
+import { useSession } from 'next-auth/react';
+import { generateToken } from '@/lib/generate-token';
 
 const InformationForm = () => {
+    const {data: session, update} = useSession();
+
     const profileForm = useForm<z.infer<typeof profileSchema>>({
         resolver: zodResolver(profileSchema),
         defaultValues: {
-            firstName: '',
-            lastName: '',
-            bio: '',
+            firstName: session?.currentUser?.firstName,
+            lastName: session?.currentUser?.lastName,
+            bio: session?.currentUser?.bio,
         }
     });
 
-    const onSubmit = (values: z.infer<typeof profileSchema>) => {
+    const {mutate, isPending} = useMutation({
+        mutationFn: async (payload: z.infer<typeof profileSchema>) => {
+            const token = await generateToken(session?.currentUser?._id);
+
+            const {data} = await axiosClient.put('/api/user/profile', payload, {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            });
+
+            return data;
+        },
+
+        onSuccess: () => {
+            toast.success('Profile updated successfully');
+
+            update();
+        },
+
+        onError: (error: IError) => {
+            if (error?.response?.data?.message) {
+                return toast.error(error.response.data.message);
+            } else {
+                return toast.error('Something went wrong');
+            }
+        }
+    });
+
+    const onSubmit = (data: z.infer<typeof profileSchema>) => {
         // API call to handle form submission
 
-        console.log(values);
+        // console.log(data);
+
+        mutate(data);
     }
 
     return (
@@ -40,6 +78,7 @@ const InformationForm = () => {
                                         className='bg-secondary'
                                         placeholder='Akobir'
                                         {...field}
+                                        disabled={isPending}
                                     />
                                 </FormControl>
                                 <FormMessage className='text-xs text-red-500' />
@@ -57,6 +96,7 @@ const InformationForm = () => {
                                         className='bg-secondary'
                                         placeholder='Usmonov'
                                         {...field}
+                                        disabled={isPending}
                                     />
                                 </FormControl>
                                 <FormMessage className='text-xs text-red-500' />
@@ -74,12 +114,13 @@ const InformationForm = () => {
                                         className='bg-secondary'
                                         placeholder='Enter anything about yourself'
                                         {...field}
+                                        disabled={isPending}
                                     />
                                 </FormControl>
                             </FormItem>
                         )}
                     />
-                    <Button type='submit' className='w-full'>
+                    <Button type='submit' className='w-full' disabled={isPending}>
                         Submit
                     </Button>
                 </form>
