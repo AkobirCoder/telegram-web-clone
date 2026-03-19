@@ -9,10 +9,14 @@ const errorMiddleware = require('./middlewares/error.middleware');
 
 const app = express();
 
+app.use(express.json());
+
 app.use(cors({
     origin: process.env.CLIENT_URL,
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
 }));
+
+app.use(cookieParser());
 
 // Middleware
 
@@ -24,8 +28,6 @@ app.use(cors({
 // app.get('/', (req, res) => {
 //     res.send('Hello world!');
 // });
-
-app.use(express.json());
 
 app.use('/api', require('./routes/index'));
 
