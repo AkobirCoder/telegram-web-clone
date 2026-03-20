@@ -13,6 +13,15 @@ import { IError } from '@/types';
 import { toast } from 'sonner';
 
 const SignIn = () => {
+    const {setEmail, setStep} = useAuth();
+
+    const form = useForm<z.infer<typeof emailSchema>>({
+        resolver: zodResolver(emailSchema),
+        defaultValues: {
+            email: '',
+        },
+    });
+
     const {mutate, isPending} = useMutation({
         mutationFn: async (email: string) => {
             const {data} = await axiosClient.post<{email: string}>('/api/auth/login', {email});
@@ -35,15 +44,6 @@ const SignIn = () => {
                 return toast.error('Something went wrong');
             }
         }
-    });
-
-    const {setEmail, setStep} = useAuth();
-
-    const form = useForm<z.infer<typeof emailSchema>>({
-        resolver: zodResolver(emailSchema),
-        defaultValues: {
-            email: '',
-        },
     });
 
     function onSubmit(values: z.infer<typeof emailSchema>) {
