@@ -33,8 +33,8 @@ const InformationForm = () => {
 
             const {data} = await axiosClient.put('/api/user/profile', payload, {
                 headers: {
-                    Authorization: `Bearer ${token}`
-                }
+                    Authorization: `Bearer ${token}`,
+                },
             });
 
             return data;
@@ -96,6 +96,7 @@ const InformationForm = () => {
                                         className='bg-secondary'
                                         placeholder='Usmonov'
                                         {...field}
+                                        value={field.value || ""}
                                         disabled={isPending}
                                     />
                                 </FormControl>
@@ -114,6 +115,7 @@ const InformationForm = () => {
                                         className='bg-secondary'
                                         placeholder='Enter anything about yourself'
                                         {...field}
+                                        value={field.value || ""}
                                         disabled={isPending}
                                     />
                                 </FormControl>
