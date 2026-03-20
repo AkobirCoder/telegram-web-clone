@@ -19,11 +19,11 @@ router.group('/user', (route) => {
     route.post('/message-read', userController.messageRead);
     route.post('/contact', userController.createContact);
     route.post('/reaction', userController.createReaction);
-    route.post('/send-otp', userController.sendOtp);
+    route.post('/send-otp', authMiddleware, userController.sendOtp);
 
     route.put('/profile', authMiddleware, userController.updateProfile);
     route.put('/message/:messageId', userController.updateMessage);
-    route.put('/email', userController.updateEmail);
+    route.put('/email', authMiddleware, userController.updateEmail);
 
     route.delete('/message/:messageId', userController.deleteMessage);
     route.delete('/', userController.deleteUser);
