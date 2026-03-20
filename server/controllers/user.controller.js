@@ -143,11 +143,11 @@ class UserController {
 
             const existUser = await userModel.findOne({email});
 
-            if (!existUser) throw BaseError.BadRequest("User with this email does not exist");
+            if (existUser) throw BaseError.BadRequest("User with this email already exist");
 
             await mailService.sendOtp(email);
 
-            res.status(200).json({message: "OTP sent successfully"});
+            res.status(200).json({message: "OTP sent successfully", email});
         } catch (error) {
             next(error);
         }
@@ -186,7 +186,7 @@ class UserController {
             const result = await mailService.verifyOtp(email, otp);
 
             if (result) {
-                const userId = '69b6ab64ee86c76e256dbd02';
+                const userId = req.user._id;
                 const user = await userModel.findByIdAndUpdate(userId, {email}, {new: true});
 
                 res.status(200).json({message: "Email updated successfully", user});
