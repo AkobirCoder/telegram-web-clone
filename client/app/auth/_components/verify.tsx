@@ -16,6 +16,16 @@ import z from 'zod';
 import { signIn } from 'next-auth/react';
 
 const Verify = () => {
+    const {email} = useAuth();
+
+    const form = useForm<z.infer<typeof otpSchema>>({
+        resolver: zodResolver(otpSchema),
+        defaultValues: {
+            email: email, // sign-in da kiritilgan emailni qabul qilish
+            otp: '',
+        },
+    });
+
     const {mutate, isPending} = useMutation({
         mutationFn: async (otp: string) => {
             const {data} = await axiosClient.post<{user: IUser}>('/api/auth/verify', {email, otp});
@@ -36,16 +46,6 @@ const Verify = () => {
                 return toast.error('Something went wrong');
             }
         }
-    });
-
-    const {email} = useAuth();
-
-    const form = useForm<z.infer<typeof otpSchema>>({
-        resolver: zodResolver(otpSchema),
-        defaultValues: {
-            email: email, // sign-in da kiritilgan emailni qabul qilish
-            otp: '',
-        },
     });
 
     function onSubmit(values: z.infer<typeof otpSchema>) {
@@ -87,7 +87,13 @@ const Verify = () => {
                             <FormItem>
                                 <FormLabel>One-Time Password</FormLabel>
                                 <FormControl>
-                                    <InputOTP maxLength={6} className='w-full' pattern={REGEXP_ONLY_DIGITS} {...field} disabled={isPending}>
+                                    <InputOTP 
+                                        maxLength={6} 
+                                        className='w-full' 
+                                        pattern={REGEXP_ONLY_DIGITS} 
+                                        {...field} 
+                                        disabled={isPending}
+                                    >
                                         <InputOTPGroup className='w-full'>
                                             <InputOTPSlot index={0} className='w-full h-10 dark:bg-zinc-800 bg-secondary' />
                                             <InputOTPSlot index={1} className='w-full h-10 dark:bg-zinc-800 bg-secondary' />
