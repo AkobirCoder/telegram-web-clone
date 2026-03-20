@@ -8,8 +8,15 @@ import { confirmTextShema } from '@/lib/validation';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '../ui/form';
 import { Input } from '../ui/input';
+import { useMutation } from '@tanstack/react-query';
+import { generateToken } from '@/lib/generate-token';
+import { signOut, useSession } from 'next-auth/react';
+import { axiosClient } from '@/http/axios';
+import { toast } from 'sonner';
 
 const DangerZoneForm = () => {
+    const {data: session} = useSession();
+
     const form = useForm<z.infer<typeof confirmTextShema>>({
         resolver: zodResolver(confirmTextShema),
         defaultValues: {
@@ -17,10 +24,33 @@ const DangerZoneForm = () => {
         },
     });
 
-    function onSubmit(values: z.infer<typeof confirmTextShema>) {
+    const {mutate, isPending} = useMutation({
+        mutationFn: async () => {
+            const token = await generateToken(session?.currentUser?._id);
+
+            const {data} = await axiosClient.delete('/api/user', {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+
+            return data;
+        },
+
+        onSuccess: () => {
+            signOut();
+
+            toast.success('User deleted successfully');
+        }
+    });
+
+    // function onSubmit(values: z.infer<typeof confirmTextShema>) {
+    function onSubmit() {
         // API call to confirm delete
 
-        console.log(values);
+        // console.log(values);
+
+        mutate();
     }
 
     return (
@@ -32,7 +62,7 @@ const DangerZoneForm = () => {
             <Dialog>
                 <DialogTrigger asChild>
                     <Button 
-                        className='mt-2 w-full font-bold'
+                        className='mt-2 w-full font-bold border-none'
                         variant={'destructive'}
                     >
                         Delete permenantly
@@ -63,13 +93,14 @@ const DangerZoneForm = () => {
                                             <Input
                                                 className='h-10 bg-secondary'
                                                 {...field}
+                                                disabled={isPending}
                                             />
                                         </FormControl>
                                         <FormMessage className='text-xs text-red-500' />
                                     </FormItem>
                                 )}
                             />
-                            <Button className='w-full font-bold'>Submit</Button>
+                            <Button className='w-full font-bold' disabled={isPending}>Submit</Button>
                         </form>
                     </Form>
                 </DialogContent>
