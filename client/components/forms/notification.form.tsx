@@ -1,17 +1,58 @@
 import React, { useState } from 'react';
 import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
 import { Button } from '../ui/button';
-import { ChevronDown, PlayCircle } from 'lucide-react';
+import { CheckCheckIcon, ChevronDown, PlayCircle } from 'lucide-react';
 import { SOUNDS } from '@/lib/constants';
-import { cn } from '@/lib/utils';
+import { cn, getSoundLabel } from '@/lib/utils';
 import useAudio from '@/hooks/use-audio';
 import { Separator } from '../ui/separator';
 import { Switch } from '../ui/switch';
+import { useMutation } from '@tanstack/react-query';
+import { generateToken } from '@/lib/generate-token';
+import { useSession } from 'next-auth/react';
+import { axiosClient } from '@/http/axios';
+import { toast } from 'sonner';
+
+interface IPayload {
+    muted?: boolean,
+    notificationSound?: string,
+    sendingSound?: string,
+}
 
 const NotificationForm = () => {
     const [selectedSound, setSelectedSound] = useState('');
 
     const {playSound} = useAudio();
+
+    const {data: session, update} = useSession();
+
+    const [isNotification, setIsNotification] = useState(false);
+
+    const [isSending, setIsSending] = useState(false);
+
+    const {mutate, isPending} = useMutation({
+        mutationFn: async (payload: IPayload) => {
+            const token = await generateToken(session?.currentUser?._id);
+
+            const {data} = await axiosClient.put('/api/user/profile', payload, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+
+            return data;
+        },
+
+        onSuccess: () => {
+            toast.success('Profile updated successfully');
+
+            update();
+
+            setIsNotification(false);
+
+            setIsSending(false);
+        }
+    });
 
     const onPlaySound = (value: string) => {
         setSelectedSound(value);
@@ -25,11 +66,11 @@ const NotificationForm = () => {
                 <div className='flex flex-col'>
                     <h3>Notification Sound</h3>
                     <p className='text-muted-foreground text-xs'>
-                        Apple
+                        {getSoundLabel(session?.currentUser?.notificationSound)}
                     </p>
                 </div>
 
-                <Popover>
+                <Popover open={isNotification} onOpenChange={setIsNotification}>
                     <PopoverTrigger asChild>
                         <Button size={'sm'} className='rounded-none'>
                             Select <ChevronDown />
@@ -50,15 +91,29 @@ const NotificationForm = () => {
                                             <div className='justify-start pl-2'>
                                                 {sound.label}
                                             </div>
-                                            <Button size={'icon'} variant={'ghost'}>
-                                                <PlayCircle />
-                                            </Button>
+                                            {
+                                                session?.currentUser?.notificationSound === sound.value ? (
+                                                    <Button className='border-none' size={'icon'}>
+                                                        <CheckCheckIcon />
+                                                    </Button>
+                                                ) : (
+                                                    <Button className='border-none' size={'icon'} variant={'ghost'}>
+                                                        <PlayCircle />
+                                                    </Button>
+                                                )
+                                            }
                                         </div>
                                     );
                                 })
                             }
                         </div>
-                        <Button className='w-full font-bold mt-2'>Submit</Button>
+                        <Button 
+                            className='w-full font-bold mt-2'
+                            disabled={isPending}
+                            onClick={() => mutate({notificationSound: selectedSound})}
+                        >
+                            Submit
+                        </Button>
                     </PopoverContent>
                 </Popover>
             </div>
@@ -69,11 +124,11 @@ const NotificationForm = () => {
                 <div className='flex flex-col'>
                     <h3>Sending Sound</h3>
                     <p className='text-muted-foreground text-xs'>
-                        Apple
+                        {getSoundLabel(session?.currentUser?.sendingSound)}
                     </p>
                 </div>
 
-                <Popover>
+                <Popover open={isSending} onOpenChange={setIsSending}>
                     <PopoverTrigger asChild>
                         <Button size={'sm'} className='rounded-none'>
                             Select <ChevronDown />
@@ -91,18 +146,32 @@ const NotificationForm = () => {
                                             )}
                                             onClick={() => onPlaySound(sound.value)}
                                         >
-                                            <Button size={'sm'} variant={'ghost'} className='justify-start'>
+                                            <div className='justify-start pl-2'>
                                                 {sound.label}
-                                            </Button>
-                                            <Button size={'icon'} variant={'ghost'}>
-                                                <PlayCircle />
-                                            </Button>
+                                            </div>
+                                            {
+                                                session?.currentUser?.sendingSound === sound.value ? (
+                                                    <Button className='border-none' size={'icon'}>
+                                                        <CheckCheckIcon />
+                                                    </Button>
+                                                ) : (
+                                                    <Button className='border-none' size={'icon'} variant={'ghost'}>
+                                                        <PlayCircle />
+                                                    </Button>
+                                                )
+                                            }
                                         </div>
                                     );
                                 })
                             }
                         </div>
-                        <Button className='w-full font-bold mt-2'>Submit</Button>
+                        <Button 
+                            className='w-full font-bold mt-2'
+                            disabled={isPending}
+                            onClick={() => mutate({sendingSound: selectedSound})}
+                        >
+                            Submit
+                        </Button>
                     </PopoverContent>
                 </Popover>
             </div>
@@ -113,10 +182,16 @@ const NotificationForm = () => {
                 <div className='flex flex-col'>
                     <h3>Mode Mute</h3>
                     <p className='text-muted-foreground text-xs'>
-                        Muted
+                        {
+                            !session?.currentUser?.muted? 'Muted' : 'Unmuted'
+                        }
                     </p>
                 </div>
-                <Switch />
+                <Switch 
+                    checked={!session?.currentUser?.muted} 
+                    onCheckedChange={() => mutate({muted: !session?.currentUser?.muted})} 
+                    disabled={isPending}
+                />
             </div>
         </>
     );
