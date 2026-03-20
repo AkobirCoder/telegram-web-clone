@@ -5,7 +5,7 @@ import { InputOTP, InputOTPGroup, InputOTPSeparator, InputOTPSlot } from '@/comp
 import { useAuth } from '@/hooks/use-auth';
 import { axiosClient } from '@/http/axios';
 import { otpSchema } from '@/lib/validation';
-import { IError, IUser } from '@/types';
+import { IUser } from '@/types';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation } from '@tanstack/react-query';
 import { REGEXP_ONLY_DIGITS } from 'input-otp';
@@ -38,14 +38,6 @@ const Verify = () => {
 
             toast.success('Successfully verified');
         },
-
-        onError: (error: IError) => {
-            if (error?.response?.data?.message) {
-                return toast.error(error.response.data.message);
-            } else {
-                return toast.error('Something went wrong');
-            }
-        }
     });
 
     function onSubmit(values: z.infer<typeof otpSchema>) {
