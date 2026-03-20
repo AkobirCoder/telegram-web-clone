@@ -9,7 +9,6 @@ import { Button } from '@/components/ui/button';
 import { useAuth } from '@/hooks/use-auth';
 import { useMutation } from '@tanstack/react-query';
 import { axiosClient } from '@/http/axios';
-import { IError } from '@/types';
 import { toast } from 'sonner';
 
 const SignIn = () => {
@@ -36,14 +35,6 @@ const SignIn = () => {
 
             toast.success('Email sent');
         },
-
-        onError: (error: IError) => {
-            if (error?.response?.data?.message) {
-                return toast.error(error.response.data.message);
-            } else {
-                return toast.error('Something went wrong');
-            }
-        }
     });
 
     function onSubmit(values: z.infer<typeof emailSchema>) {
