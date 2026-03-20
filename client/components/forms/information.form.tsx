@@ -10,7 +10,6 @@ import { Textarea } from '../ui/textarea';
 import { Button } from '../ui/button';
 import { useMutation } from '@tanstack/react-query';
 import { axiosClient } from '@/http/axios';
-import { IError } from '@/types';
 import { toast } from 'sonner';
 import { useSession } from 'next-auth/react';
 import { generateToken } from '@/lib/generate-token';
@@ -45,14 +44,6 @@ const InformationForm = () => {
 
             update();
         },
-
-        onError: (error: IError) => {
-            if (error?.response?.data?.message) {
-                return toast.error(error.response.data.message);
-            } else {
-                return toast.error('Something went wrong');
-            }
-        }
     });
 
     const onSubmit = (data: z.infer<typeof profileSchema>) => {
