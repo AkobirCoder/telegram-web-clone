@@ -1,0 +1,19 @@
+{
+  "name": "socket",
+  "version": "1.0.0",
+  "description": "",
+  "main": "socket.js",
+  "scripts": {
+    "socket": "nodemon socket.js"
+  },
+  "keywords": [],
+  "author": "AkobirCoder - Akobir Usmonov",
+  "license": "ISC",
+  "type": "commonjs",
+  "devDependencies": {
+    "nodemon": "^3.1.14"
+  },
+  "dependencies": {
+    "socket.io": "^4.8.3"
+  }
+}
