@@ -1,7 +1,7 @@
 'use client'
 
 import { Loader2 } from 'lucide-react';
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import ContactList from './_components/contact-list';
 import { useRouter } from 'next/navigation';
 import AddContact from './_components/add-contact';
@@ -12,9 +12,21 @@ import { emailSchema, messageSchema } from '@/lib/validation';
 import { zodResolver } from '@hookform/resolvers/zod';
 import TopChat from './_components/top-chat';
 import Chat from './_components/chat';
+import { useLoading } from '@/hooks/use-loading';
+import { axiosClient } from '@/http/axios';
+import { generateToken } from '@/lib/generate-token';
+import { useSession } from 'next-auth/react';
+import { IError, IUser } from '@/types';
+import { toast } from 'sonner';
 
 const HomePage = () => {
+    const {data: session} = useSession();
+
     const {currentContact} = useCurrentContact(); 
+
+    const {setCreating, setLoading, isLoading} = useLoading();
+
+    const [contacts, setContacts] = useState<IUser[]>([]);
 
     const router = useRouter();
 
@@ -33,14 +45,71 @@ const HomePage = () => {
         },
     });
 
+    const getContacts = async () => {
+        setLoading(true);
+
+        const token = await generateToken(session?.currentUser?._id);
+
+        try {
+            const {data} = await axiosClient.get<{contacts: IUser[]}>('/api/user/contacts', {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+
+            setContacts(data.contacts);
+        } catch {
+            toast.error('Cannot fetch contacts');
+        } finally {
+            setLoading(false);
+        }
+    }
+
     useEffect(() => {
         router.replace('/');
     }, []);
 
-    const onCreateContact = (values: z.infer<typeof emailSchema>) => {
+    useEffect(() => {
+        if (session?.currentUser?._id) {
+            getContacts();
+        }
+    }, [session?.currentUser]);
+
+    const onCreateContact = async (values: z.infer<typeof emailSchema>) => {
         // API call to create contact
 
-        console.log(values);
+        // console.log(values);
+
+        setCreating(true);
+
+        const token = await generateToken(session?.currentUser?._id);
+
+        try {
+            const {data} = await axiosClient.post<{contact: IUser}>('/api/user/contact', values, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+
+            console.log(data);
+
+            setContacts((prevState) => {
+                return [...prevState, data.contact];
+            });
+
+            toast.success('Contact added succesfully');
+
+            contactForm.reset();
+        
+        } catch (error: any) {
+            if ((error as IError)?.response?.data?.message) {
+                    return toast.error((error as IError).response.data.message);
+            } else {
+                return toast.error('Something went wrong');
+            }
+        } finally {
+            setCreating(false);
+        }
     }
 
     const onSendMessage = (values: z.infer<typeof messageSchema>) => {
@@ -49,61 +118,26 @@ const HomePage = () => {
         console.log(values);
     }
 
-    const contacts = [
-        {
-            _id: '1',
-            email: 'akobir@gmail.com',
-            avatar: 'https://github.com/shadcn.png',
-            firstName: 'Akobir',
-            lastName: 'Usmonov',
-            bio: 'Lorem ipsum dolor, sit amet consectetur adipisicing elit. Facere, omnis! Unde eaque incidunt sit vero ratione facilis voluptate placeat labore.'
-        },
-        {
-            _id: '2',
-            email: 'zoe@gmail.com',
-            avatar: 'https://github.com/shadcn.png',
-            firstName: 'Zoe',
-            lastName: 'Nill',
-            bio: 'Lorem ipsum dolor, sit amet consectetur adipisicing elit. Facere, omnis! Unde eaque incidunt sit vero ratione facilis voluptate placeat labore.'
-        },
-        {
-            _id: '3',
-            email: 'jhondoe@gmail.com',
-            avatar: 'https://github.com/shadcn.png',
-            firstName: 'Jhon',
-            lastName: 'Doe',
-            bio: 'Lorem ipsum dolor, sit amet consectetur adipisicing elit. Facere, omnis! Unde eaque incidunt sit vero ratione facilis voluptate placeat labore.'
-        },
-        {
-            _id: '4',
-            email: 'kamikadze@gmail.com',
-            avatar: 'https://github.com/shadcn.png',
-            firstName: 'Hiroku',
-            lastName: 'Kamiratu',
-            bio: 'Lorem ipsum dolor, sit amet consectetur adipisicing elit. Facere, omnis! Unde eaque incidunt sit vero ratione facilis voluptate placeat labore.'
-        },
-        {
-            _id: '5',
-            email: 'simple@gmail.com',
-            avatar: 'https://github.com/shadcn.png',
-            firstName: 'Sayed',
-            lastName: 'AliYusuf',
-            bio: 'Lorem ipsum dolor, sit amet consectetur adipisicing elit. Facere, omnis! Unde eaque incidunt sit vero ratione facilis voluptate placeat labore.'
-        },
-    ];
-
     return (
         <>
             {/* --- Sidebar --- */}
             <div className='w-80 h-screen border-r border-r-zinc-300 dark:border-r-zinc-700 fixed inset-0 z-50'>
                 {/* --- Loading --- */}
-                {/* <div className='w-full h-[95vh] flex justify-center items-center'>
-                    <Loader2 size={50} className='animate-spin' />
-                </div> */}
+                {
+                    isLoading && (
+                        <div className='w-full h-[95vh] flex justify-center items-center'>
+                            <Loader2 size={50} className='animate-spin' />
+                        </div>
+                    )
+                }
                 {/* --- Loading --- */}
 
                 {/* --- Contact list --- */}
-                <ContactList contacts={contacts} />
+                {
+                    !isLoading && (
+                        <ContactList contacts={contacts} />
+                    )
+                }
                 {/* --- Contact list --- */}
             </div>
             {/* --- Sidebar --- */}
