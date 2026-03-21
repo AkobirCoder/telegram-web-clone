@@ -69,6 +69,7 @@ const InformationForm = () => {
                                         className='bg-secondary'
                                         placeholder='Akobir'
                                         {...field}
+                                        value={field.value || ""}
                                         disabled={isPending}
                                     />
                                 </FormControl>
