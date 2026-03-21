@@ -3,7 +3,7 @@ import EmailForm from '@/components/forms/email.form';
 import InformationForm from '@/components/forms/information.form';
 import NotificationForm from '@/components/forms/notification.form';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Separator } from '@/components/ui/separator';
@@ -11,6 +11,7 @@ import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '
 import { Switch } from '@/components/ui/switch';
 import { axiosClient } from '@/http/axios';
 import { generateToken } from '@/lib/generate-token';
+import { UploadButton, UploadDropzone } from '@/lib/uploadthing';
 import { useMutation } from '@tanstack/react-query';
 import { LogIn, Menu, Moon, Settings2, Sun, Upload, UserPlus, Volume2, VolumeOff } from 'lucide-react';
 import { signOut, useSession } from 'next-auth/react';
@@ -18,16 +19,21 @@ import { useTheme } from 'next-themes';
 import React, { useState } from 'react';
 import { toast } from 'sonner';
 
+interface IPayload {
+    muted?: boolean,
+    avatar?: string,
+}
+
 const Settings = () => {
     const {data: session, update} = useSession();
 
     const {resolvedTheme, setTheme} = useTheme();
 
     const {mutate, isPending} = useMutation({
-        mutationFn: async (muted: boolean) => {
+        mutationFn: async (payload: IPayload) => {
             const token = await generateToken(session?.currentUser?._id);
 
-            const {data} = await axiosClient.put('/api/user/profile', {muted}, {
+            const {data} = await axiosClient.put('/api/user/profile', payload, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },
@@ -122,7 +128,7 @@ const Settings = () => {
                             </div>
                             <Switch
                                 checked={!session?.currentUser?.muted} 
-                                onCheckedChange={() => mutate(!session?.currentUser?.muted)} 
+                                onCheckedChange={() => mutate({muted: !session?.currentUser?.muted})} 
                                 disabled={isPending}
                             />
                         </div>
@@ -169,16 +175,44 @@ const Settings = () => {
                     </SheetHeader>
 
                     <Separator className='my-2' />
-
+                        {/* <UploadDropzone 
+                            endpoint={'imageUploader'}
+                            onClientUploadComplete={res => {
+                                console.log(res);
+                            }}
+                            config={{appendOnPaste: true, mode: 'auto'}}
+                        /> */}
                     <div className='mx-auto w-1/2 h-36 relative'>
                         <Avatar className='w-full h-36'>
+                            <AvatarImage 
+                                className='object-cover'
+                                src={session?.currentUser?.avatar} 
+                                alt={session?.currentUser?.email} 
+                            />
                             <AvatarFallback className='text-6xl uppercase'>
                                 AU
                             </AvatarFallback>
                         </Avatar>
-                        <Button size={'icon'} className='absolute right-5 bottom-0 rounded-full'>
+                        <UploadButton
+                            className='absolute right-0 bottom-0 rounded-full bg-primary'
+                            appearance={{
+                                allowedContent: {display: 'none'},
+                                button: {width: 40, height: 40}
+                            }}
+                            content={{button: <Upload size={16} />}}
+                            endpoint={'imageUploader'}
+                            onClientUploadComplete={(res) => {
+                                // console.log(res);
+                                mutate({avatar: res[0].ufsUrl});
+                            }}
+                            config={{
+                                appendOnPaste: true,
+                                mode: 'auto',
+                            }}
+                        />
+                        {/* <Button size={'icon'} className='absolute right-5 bottom-0 rounded-full'>
                             <Upload size={16} />
-                        </Button>
+                        </Button> */}
                     </div>
 
                     <Accordion type="single" collapsible defaultValue="item-1" className='mt-4'>
