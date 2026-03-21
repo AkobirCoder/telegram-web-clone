@@ -1,7 +1,7 @@
 'use client'
 
 import { IUser } from '@/types';
-import React, { FC } from 'react';
+import React, { FC, useState } from 'react';
 import Settings from './settings';
 import { Input } from '@/components/ui/input';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -15,9 +15,15 @@ interface Props {
 }
 
 const ContactList: FC<Props> = ({contacts}) => {
+    const [query, setQuery] = useState('');
+
     const router = useRouter();
 
     const {currentContact, setCurrentContact} = useCurrentContact();
+
+    const filteredContacts = contacts.filter((contact) => {
+        return contact.email.toLowerCase().includes(query.toLowerCase());
+    })
 
     const renderContact = (contact: IUser) => {
         const onChat = () => {
@@ -67,7 +73,13 @@ const ContactList: FC<Props> = ({contacts}) => {
             <div className='flex items-center bg-background pl-2 sticky top-0'>
                 <Settings />
                 <div className='m-2 w-full'>
-                    <Input className='bg-secondary' type='text' placeholder='Search' />
+                    <Input 
+                        className='bg-secondary' 
+                        type='text' 
+                        placeholder='Search'
+                        value={query}
+                        onChange={(event) => setQuery(event.target.value)}
+                    />
                 </div>
                 <div className='pr-2'>
                     <ModeToggle />
@@ -77,12 +89,12 @@ const ContactList: FC<Props> = ({contacts}) => {
 
             {/* --- Contacts --- */}
             {
-                contacts.length === 0 ? (
+                filteredContacts.length === 0 ? (
                     <div className='w-full h-[95vh] flex justify-center items-center text-center text-muted-foreground'>
                         <p>Contact list is empty</p>
                     </div>
                 ) : (
-                    contacts.map((contact) => {
+                    filteredContacts.map((contact) => {
                         return (
                             <div key={contact._id}>{renderContact(contact)}</div>
                         );
