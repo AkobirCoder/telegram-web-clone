@@ -189,8 +189,8 @@ const Settings = () => {
                                 src={session?.currentUser?.avatar} 
                                 alt={session?.currentUser?.email} 
                             />
-                            <AvatarFallback className='text-6xl uppercase'>
-                                AU
+                            <AvatarFallback className='text-center'>
+                                Please upload your photo
                             </AvatarFallback>
                         </Avatar>
                         <UploadButton
