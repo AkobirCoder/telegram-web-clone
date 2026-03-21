@@ -23,7 +23,7 @@ const ContactList: FC<Props> = ({contacts}) => {
 
     const filteredContacts = contacts.filter((contact) => {
         return contact.email.toLowerCase().includes(query.toLowerCase());
-    })
+    });
 
     const renderContact = (contact: IUser) => {
         const onChat = () => {
