@@ -90,7 +90,7 @@ class UserController {
             const allMessages = [];
 
             for (const message of messages) {
-                const updatedMessage = await messageModel.findByIdAndUpdate(message._id, {status: CONST.READ}, {new: true});
+                const updatedMessage = await messageModel.findByIdAndUpdate(message._id, {status: CONST.READ}, {returnDocument: 'after'});
 
                 allMessages.push(updatedMessage);
             }
@@ -120,7 +120,7 @@ class UserController {
             
             await userModel.findByIdAndUpdate(userId, {$push: {contacts: contact._id}});
 
-            const addedContact = await userModel.findByIdAndUpdate(contact._id, {$push: {contacts: userId}}, {new: true});
+            const addedContact = await userModel.findByIdAndUpdate(contact._id, {$push: {contacts: userId}}, {returnDocument: 'after'});
 
             return res.status(201).json({message: "Contact added successfully", contact: addedContact});
         } catch (error) {
@@ -131,7 +131,7 @@ class UserController {
     async createReaction(req, res, next) {
         try {
             const {messageId, reaction} = req.body;
-            const updatedMessage = await messageModel.findByIdAndUpdate(messageId, {reaction}, {new: true});
+            const updatedMessage = await messageModel.findByIdAndUpdate(messageId, {reaction}, {returnDocument: 'after'});
 
             res.status(201).json({updatedMessage});
         } catch (error) {
@@ -173,7 +173,7 @@ class UserController {
             const {text} = req.body;
 
             const {messageId} = req.params;
-            const updatedMessage = await messageModel.findByIdAndUpdate(messageId, {text}, {new: true});
+            const updatedMessage = await messageModel.findByIdAndUpdate(messageId, {text}, {returnDocument: 'after'});
 
             res.status(200).json({updatedMessage});
         } catch (error) {
@@ -189,7 +189,7 @@ class UserController {
 
             if (result) {
                 const userId = req.user._id;
-                const user = await userModel.findByIdAndUpdate(userId, {email}, {new: true});
+                const user = await userModel.findByIdAndUpdate(userId, {email}, {returnDocument: 'after'});
 
                 res.status(200).json({message: "Email updated successfully", user});
             }
