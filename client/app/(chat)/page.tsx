@@ -89,6 +89,20 @@ const HomePage = () => {
         }
     }, [session?.currentUser]);
 
+    useEffect(() => {
+        if (session?.currentUser) {
+            socket.current?.on('getCreatedUser', user => {
+                // console.log('Created by user', user);
+
+                setContacts((prevState) => {
+                    const isExist = prevState.some((item) => item._id === user._id);
+
+                    return isExist ? prevState : [...prevState, user];
+                });
+            });
+        }
+    }, [session?.currentUser, socket]);
+
     const onCreateContact = async (values: z.infer<typeof emailSchema>) => {
         // API call to create contact
 
@@ -105,10 +119,15 @@ const HomePage = () => {
                 },
             });
 
-            console.log(data);
+            // console.log(data);
 
             setContacts((prevState) => {
                 return [...prevState, data.contact];
+            });
+
+            socket.current?.emit('createContact', {
+                currentUser: session?.currentUser,
+                receiver: data.contact,
             });
 
             toast.success('Contact added succesfully');
