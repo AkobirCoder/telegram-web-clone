@@ -9,6 +9,7 @@ import { useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { ModeToggle } from '@/components/shared/mode-toggle';
 import { useCurrentContact } from '@/hooks/use-current';
+import { useAuth } from '@/hooks/use-auth';
 
 interface Props {
     contacts: IUser[],
@@ -16,6 +17,8 @@ interface Props {
 
 const ContactList: FC<Props> = ({contacts}) => {
     const [query, setQuery] = useState('');
+
+    const {onlineUsers} = useAuth();
 
     const router = useRouter();
 
@@ -31,7 +34,7 @@ const ContactList: FC<Props> = ({contacts}) => {
                 return;
             }
 
-            console.log('Chatting with', contact.email);
+            // console.log('Chatting with', contact.email);
 
             setCurrentContact(contact);
 
@@ -51,7 +54,14 @@ const ContactList: FC<Props> = ({contacts}) => {
                             <AvatarImage src={contact.avatar} alt={contact.email} className='object-cover' />
                             <AvatarFallback className='uppercase'>{contact.email[0]}</AvatarFallback>
                         </Avatar>
-                        <div className='size-3 bg-green-500 absolute rounded-full bottom-0 right-0 z-51'></div>
+                        {
+                            onlineUsers.some((user) => user._id === contact._id) ? (
+                                <div className='size-3 bg-green-500 absolute rounded-full bottom-0 right-0 z-51'></div>
+                            ) : (
+                                <div className='size-3 bg-zinc-400 dark:bg-zinc-500 absolute rounded-full bottom-0 right-0 z-51'></div>
+                            )
+                        }
+                        
                     </div>
 
                     <div>
