@@ -1,3 +1,4 @@
+import { IUser } from '@/types';
 import { create } from 'zustand';
 
 type Store = {
@@ -8,6 +9,10 @@ type Store = {
     email: string;
 
     setEmail: (email: string) => void;
+
+    onlineUsers: IUser[];
+
+    setOnlineUsers: (onlineUsers: IUser[]) => void;
 }
 
 export const useAuth = create<Store>()((set) => ({
@@ -15,4 +20,6 @@ export const useAuth = create<Store>()((set) => ({
     setStep: step => set({step}),
     email: '', 
     setEmail: email => set({email}),
+    onlineUsers: [],
+    setOnlineUsers: users => set({onlineUsers: users}),
 }));
