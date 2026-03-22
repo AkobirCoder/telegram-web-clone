@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
+import { useAuth } from '@/hooks/use-auth';
 import { useCurrentContact } from '@/hooks/use-current';
 import { Settings2 } from 'lucide-react';
 import Image from 'next/image';
@@ -10,6 +11,8 @@ import React from 'react';
 
 const TopChat = () => {
     const {currentContact} = useCurrentContact();
+
+    const {onlineUsers} = useAuth();
 
     return (
         <div 
@@ -49,13 +52,24 @@ const TopChat = () => {
                     {/* --- Is typing... --- */}
 
                     <p className='text-xs'>
-                        {/* --- Online --- */}
-                        {/* <span className='text-green-500'>●</span> Online */}
-                        {/* --- Online --- */}
+                        {
+                            onlineUsers.some((user) => user._id === currentContact?._id) ? (
+                                <>
+                                    {/* --- Online --- */}
+                                    <span className='text-green-500'>●</span> Online
+                                    {/* --- Online --- */}
+                                </>
+                            ) : (
+                                <>
+                                    {/* --- Offline --- */}
+                                    <span className='text-muted-foreground'>●</span> Last seen recently
+                                    {/* --- Offline --- */}
+                                </>
+                            )
+                        }
+                        
 
-                        {/* --- Offline --- */}
-                        <span className='text-muted-foreground'>●</span> Last seen recently
-                        {/* --- Offline --- */}
+                        
                     </p>
                 </div>
             </div>
