@@ -12,14 +12,19 @@ import emojies from '@emoji-mart/data';
 import Picker from '@emoji-mart/react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { useTheme } from 'next-themes';
+import { useLoading } from '@/hooks/use-loading';
+import { IMessage } from '@/types';
 
 interface Props {
     messageForm: UseFormReturn<z.infer<typeof messageSchema>>,
     onSendMessage: (values: z.infer<typeof messageSchema>) => void,
+    messages: IMessage[],
 }
 
-const Chat: FC<Props> = ({messageForm, onSendMessage}) => {
+const Chat: FC<Props> = ({messageForm, onSendMessage, messages}) => {
     const {resolvedTheme} = useTheme();
+
+    const {loadMessages} = useLoading();
 
     const inputRef = useRef<HTMLInputElement | null>(null);
 
@@ -49,9 +54,28 @@ const Chat: FC<Props> = ({messageForm, onSendMessage}) => {
         <div className='flex flex-col justify-end z-40 min-h-[92vh]'>
             <div className='flex-1 overflow-y-auto'>
                 {/* --- Loading --- */}
-                <ChatLoading />
+                {
+                    loadMessages && (
+                        <ChatLoading />
+                    )
+                }
                 {/* --- Loading --- */}
+
                 {/* --- Messages --- */}
+                {
+                    messages.map((message) => {
+                        return (
+                            <MessageCard
+                                key={message._id}
+                                message={message}
+                            />
+                        )
+                    })
+                }
+                {/* <MessageCard isReceived />
+                <MessageCard isReceived />
+                <MessageCard />
+                <MessageCard />
                 <MessageCard isReceived />
                 <MessageCard isReceived />
                 <MessageCard />
@@ -63,21 +87,22 @@ const Chat: FC<Props> = ({messageForm, onSendMessage}) => {
                 <MessageCard isReceived />
                 <MessageCard isReceived />
                 <MessageCard />
-                <MessageCard />
-                <MessageCard isReceived />
-                <MessageCard isReceived />
-                <MessageCard />
-                <MessageCard />
+                <MessageCard /> */}
                 {/* --- Messages --- */}
+
                 {/* --- Start conversation --- */}
-                {/* <div className='w-full h-[88vh] flex items-center justify-center'>
-                    <div
-                        className='text-[100px] cursor-pointer'
-                        onClick={() => onSendMessage({text: '👋'})}
-                    >
-                        👋
-                    </div>
-                </div> */}
+                {
+                    messages.length === 0 && (
+                        <div className='w-full h-[88vh] flex items-center justify-center'>
+                            <div
+                                className='text-[100px] cursor-pointer'
+                                onClick={() => onSendMessage({text: '👋'})}
+                            >
+                                👋
+                            </div>
+                        </div>
+                    )
+                }
                 {/* --- Start conversation --- */}
             </div>
 
