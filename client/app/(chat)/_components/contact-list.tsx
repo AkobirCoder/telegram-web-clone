@@ -6,7 +6,7 @@ import Settings from './settings';
 import { Input } from '@/components/ui/input';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useRouter } from 'next/navigation';
-import { cn } from '@/lib/utils';
+import { cn, sliceText } from '@/lib/utils';
 import { ModeToggle } from '@/components/shared/mode-toggle';
 import { useCurrentContact } from '@/hooks/use-current';
 import { useAuth } from '@/hooks/use-auth';
@@ -66,7 +66,15 @@ const ContactList: FC<Props> = ({contacts}) => {
 
                     <div>
                         <h2 className='capitalize line-clamp-1 text-sm'>{contact.email.split('@')[0]}</h2>
-                        <p className='text-xs line-clamp-1 text-muted-foreground'>No message yet</p>
+                        <p className='text-xs line-clamp-1 text-muted-foreground'>
+                            {
+                                contact.lastMessage ? (
+                                    sliceText(contact.lastMessage.text, 25)
+                                ) : (
+                                    'No message yet'
+                                )
+                            }
+                        </p>
                     </div>
                 </div>
 
