@@ -72,22 +72,6 @@ const Chat: FC<Props> = ({messageForm, onSendMessage, messages}) => {
                         )
                     })
                 }
-                {/* <MessageCard isReceived />
-                <MessageCard isReceived />
-                <MessageCard />
-                <MessageCard />
-                <MessageCard isReceived />
-                <MessageCard isReceived />
-                <MessageCard />
-                <MessageCard />
-                <MessageCard isReceived />
-                <MessageCard isReceived />
-                <MessageCard />
-                <MessageCard />
-                <MessageCard isReceived />
-                <MessageCard isReceived />
-                <MessageCard />
-                <MessageCard /> */}
                 {/* --- Messages --- */}
 
                 {/* --- Start conversation --- */}
