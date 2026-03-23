@@ -139,6 +139,14 @@ const HomePage = () => {
                     return isExist ? prevState : [...prevState, newMessage];
                 }); 
 
+                setContacts((prevState) => {
+                    return prevState.map((item) => {
+                        return item._id === sender?._id 
+                        ? {...item, lastMessage: newMessage}
+                        : item
+                    });
+                });
+
                 toast.success(`${sender.email.split('@')[0]} sent you a message`);
 
                 if (!receiver.muted) {
@@ -189,7 +197,7 @@ const HomePage = () => {
         
         } catch (error: any) {
             if ((error as IError)?.response?.data?.message) {
-                    return toast.error((error as IError).response.data.message);
+                return toast.error((error as IError).response.data.message);
             } else {
                 return toast.error('Something went wrong');
             }
@@ -216,7 +224,15 @@ const HomePage = () => {
 
             setMessages((prevState) => {
                 return [...prevState, data.newMessage]
-            })
+            });
+
+            setContacts((prevState) => {
+                return prevState.map((item) => {
+                    return item._id === currentContact?._id 
+                    ? {...item, lastMessage: data.newMessage}
+                    : item
+                });
+            });
 
             socket.current?.emit('sendMessage', {
                 newMessage: data.newMessage,
