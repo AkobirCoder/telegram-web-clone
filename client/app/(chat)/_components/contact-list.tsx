@@ -10,6 +10,7 @@ import { cn, sliceText } from '@/lib/utils';
 import { ModeToggle } from '@/components/shared/mode-toggle';
 import { useCurrentContact } from '@/hooks/use-current';
 import { useAuth } from '@/hooks/use-auth';
+import { format } from 'date-fns';
 
 interface Props {
     contacts: IUser[],
@@ -78,9 +79,15 @@ const ContactList: FC<Props> = ({contacts}) => {
                     </div>
                 </div>
 
-                <div className='self-end'>
-                    <p className='text-xs text-muted-foreground'>19:20 pm</p>
-                </div>
+                {
+                    contact.lastMessage && (
+                        <div className='self-end'>
+                            <p className='text-xs text-muted-foreground'>
+                                {format(contact.lastMessage.updatedAt, 'hh:mm a')}
+                            </p>
+                        </div>
+                    )
+                }
             </div>
         );
     }
