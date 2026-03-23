@@ -16,21 +16,32 @@ import { useLoading } from '@/hooks/use-loading';
 import { axiosClient } from '@/http/axios';
 import { generateToken } from '@/lib/generate-token';
 import { useSession } from 'next-auth/react';
-import { IError, IUser } from '@/types';
+import { IError, IMessage, IUser } from '@/types';
 import { toast } from 'sonner';
 import { io } from 'socket.io-client';
 import { useAuth } from '@/hooks/use-auth';
+import useAudio from '@/hooks/use-audio';
+
+interface GetSocketType {
+    newMessage: IMessage,
+    receiver: IUser,
+    sender: IUser,
+}
 
 const HomePage = () => {
     const {data: session} = useSession();
 
     const {setOnlineUsers} = useAuth();
+    
+    const {playSound} = useAudio();
 
     const {currentContact} = useCurrentContact(); 
 
-    const {setCreating, setLoading, isLoading} = useLoading();
+    const {setCreating, setLoading, setLoadMessages, isLoading} = useLoading();
 
     const [contacts, setContacts] = useState<IUser[]>([]);
+
+    const [messages, setMessages] = useState<IMessage[]>([]);
 
     const router = useRouter();
 
@@ -71,6 +82,26 @@ const HomePage = () => {
         }
     }
 
+    const getMessages = async () => {
+        setLoadMessages(true);
+
+        const token = await generateToken(session?.currentUser?._id);
+
+        try {
+            const {data} = await axiosClient.get<{messages: IMessage[]}>(`/api/user/messages/${currentContact?._id}`, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+
+            setMessages(data.messages);
+        } catch {
+            toast.error('Cannot fetch messages');
+        } finally {
+            setLoadMessages(false);
+        }
+    }
+
     useEffect(() => {
         router.replace('/');
 
@@ -100,8 +131,30 @@ const HomePage = () => {
                     return isExist ? prevState : [...prevState, user];
                 });
             });
+
+            socket.current?.on('getNewMessage', ({newMessage, receiver, sender}: GetSocketType) => {
+                setMessages((prevState) => {
+                    const isExist = prevState.some((item) => item._id === newMessage._id);
+
+                    return isExist ? prevState : [...prevState, newMessage];
+                }); 
+
+                toast.success(`${sender.email.split('@')[0]} sent you a message`);
+
+                if (!receiver.muted) {
+                    // console.log(receiver.notificationSound);
+
+                    playSound(receiver.notificationSound);
+                }
+            });
         }
     }, [session?.currentUser, socket]);
+
+    useEffect(() => {
+        if (currentContact?._id) {
+            getMessages();
+        }
+    }, [currentContact]);
 
     const onCreateContact = async (values: z.infer<typeof emailSchema>) => {
         // API call to create contact
@@ -145,10 +198,38 @@ const HomePage = () => {
         }
     }
 
-    const onSendMessage = (values: z.infer<typeof messageSchema>) => {
+    const onSendMessage = async (values: z.infer<typeof messageSchema>) => {
         // API call to send message
 
-        console.log(values);
+        // console.log(values);
+
+        setCreating(true);
+
+        const token = await generateToken(session?.currentUser?._id);
+
+        try {
+            const {data} = await axiosClient.post<GetSocketType>('/api/user/message', {...values, receiver: currentContact?._id}, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+
+            setMessages((prevState) => {
+                return [...prevState, data.newMessage]
+            })
+
+            socket.current?.emit('sendMessage', {
+                newMessage: data.newMessage,
+                receiver: data.receiver,
+                sender: data.sender,
+            });
+
+            messageForm.reset();
+        } catch {
+            toast.error('Cannot send message');
+        } finally {
+            setCreating(false);
+        }
     }
 
     return (
@@ -198,6 +279,7 @@ const HomePage = () => {
                             <Chat
                                 messageForm={messageForm} 
                                 onSendMessage={onSendMessage}
+                                messages={messages}
                             />
                             {/* --- Chat message --- */}
                         </div>
