@@ -30,4 +30,5 @@ export interface IMessage {
     receiver: IUser,
     createdAt: string,
     updatedAt: string,
+    status: string,
 }
