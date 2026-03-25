@@ -21,6 +21,7 @@ import { toast } from 'sonner';
 import { io } from 'socket.io-client';
 import { useAuth } from '@/hooks/use-auth';
 import useAudio from '@/hooks/use-audio';
+import { CONST } from '@/lib/constants';
 
 interface GetSocketType {
     newMessage: IMessage,
@@ -155,6 +156,18 @@ const HomePage = () => {
                     playSound(receiver.notificationSound);
                 }
             });
+
+            socket.current?.on('getReadMessages', (messages: IMessage[]) => {
+                setMessages((prevState) => {
+                    return prevState.map((item) => {
+                        const message = messages.find((msg) => {
+                            return msg._id === item._id;
+                        });
+
+                        return message ? {...item, status: CONST.READ} : item;
+                    });
+                });
+            });
         }
     }, [session?.currentUser, socket]);
 
@@ -248,6 +261,45 @@ const HomePage = () => {
         }
     }
 
+    const onReadMessages = async () => {
+        const receivedMessages = messages.filter((message) => {
+            return message.receiver._id === session?.currentUser?._id;
+        }).filter((message) => {
+            return message.status !== CONST.READ;
+        });
+
+        console.log(receivedMessages);
+
+        if (receivedMessages.length === 0) return;
+
+        const token = await generateToken(session?.currentUser?._id);
+
+        try {
+            const {data} = await axiosClient.post<{messages: IMessage[]}>('/api/user/message-read', {messages: receivedMessages}, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+
+            socket.current?.emit('readMessages', {
+                receiver: currentContact,
+                messages: data.messages,
+            });
+
+            setMessages((prevState) => {
+                return prevState.map((item) => {
+                    const message = data.messages.find((msg) => {
+                        return msg._id === item._id;
+                    });
+
+                    return message ? {...item, status: CONST.READ} : item;
+                });
+            });
+        } catch {
+            toast.error('Cannot read messages');
+        }
+    }
+
     return (
         <>
             {/* --- Sidebar --- */}
@@ -296,6 +348,7 @@ const HomePage = () => {
                                 messageForm={messageForm} 
                                 onSendMessage={onSendMessage}
                                 messages={messages}
+                                onReadMessages={onReadMessages}
                             />
                             {/* --- Chat message --- */}
                         </div>
