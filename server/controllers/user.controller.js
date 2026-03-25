@@ -108,7 +108,7 @@ class UserController {
                 allMessages.push(updatedMessage);
             }
 
-            res.status(201).json({allMessages});
+            res.status(201).json({messages: allMessages});
         } catch (error) {
             next(error);
         }
