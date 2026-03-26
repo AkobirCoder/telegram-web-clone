@@ -29,7 +29,10 @@ const Chat: FC<Props> = ({messageForm, onSendMessage, messages, onReadMessages})
 
     const inputRef = useRef<HTMLInputElement | null>(null);
 
+    const scrollRef = useRef<HTMLFormElement | null>(null);
+
     useEffect(() => {
+        scrollRef.current?.scrollIntoView({behavior: 'smooth'})
         onReadMessages();
     }, [messages]);
 
@@ -105,6 +108,7 @@ const Chat: FC<Props> = ({messageForm, onSendMessage, messages, onReadMessages})
                         bg-background/50 backdrop-blur-sm
                         border-t border-t-zinc-300 dark:border-t-0
                     `}
+                    ref={scrollRef}
                 >
                     <Button 
                         size={'icon'} 
