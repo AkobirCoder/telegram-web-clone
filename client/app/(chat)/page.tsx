@@ -3,7 +3,7 @@
 import { Loader2 } from 'lucide-react';
 import React, { useEffect, useRef, useState } from 'react';
 import ContactList from './_components/contact-list';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import AddContact from './_components/add-contact';
 import { useCurrentContact } from '@/hooks/use-current';
 import { useForm } from 'react-hook-form';
@@ -36,6 +36,8 @@ const HomePage = () => {
     
     const {playSound} = useAudio();
 
+    const searchParams = useSearchParams();
+
     const {currentContact} = useCurrentContact(); 
 
     const {setCreating, setLoading, setLoadMessages, isLoading} = useLoading();
@@ -47,6 +49,8 @@ const HomePage = () => {
     const router = useRouter();
 
     const socket = useRef<ReturnType<typeof io> | null>(null);
+
+    const CONTACT_ID = searchParams.get('chat');
 
     const contactForm = useForm<z.infer<typeof emailSchema>>({
         resolver: zodResolver(emailSchema),
@@ -96,6 +100,17 @@ const HomePage = () => {
             });
 
             setMessages(data.messages);
+
+            setContacts((prevState) => {
+                return prevState.map((item) => {
+                    return item._id === currentContact?._id
+                        ? {...item, lastMessage: item.lastMessage
+                            ? {...item.lastMessage, status: CONST.READ}
+                            : null
+                        }
+                        : item
+                });
+            });
         } catch {
             toast.error('Cannot fetch messages');
         } finally {
@@ -141,10 +156,17 @@ const HomePage = () => {
                 }); 
 
                 setContacts((prevState) => {
-                    return prevState.map((item) => {
-                        return item._id === sender?._id 
-                        ? {...item, lastMessage: newMessage}
-                        : item
+                    return prevState.map((contact) => {
+                        if (contact._id === sender._id) {
+                            return {...contact, lastMessage: {
+                                ...newMessage, 
+                                status: CONTACT_ID === sender._id 
+                                    ? CONST.READ 
+                                    : newMessage.status
+                            }}
+                        }
+
+                        return contact;
                     });
                 });
 
@@ -169,7 +191,7 @@ const HomePage = () => {
                 });
             });
         }
-    }, [session?.currentUser, socket]);
+    }, [session?.currentUser, socket, CONTACT_ID]);
 
     useEffect(() => {
         if (currentContact?._id) {
@@ -242,7 +264,7 @@ const HomePage = () => {
             setContacts((prevState) => {
                 return prevState.map((item) => {
                     return item._id === currentContact?._id 
-                    ? {...item, lastMessage: data.newMessage}
+                    ? {...item, lastMessage: {...data.newMessage, status: CONST.READ}}
                     : item
                 });
             });
@@ -267,8 +289,6 @@ const HomePage = () => {
         }).filter((message) => {
             return message.status !== CONST.READ;
         });
-
-        console.log(receivedMessages);
 
         if (receivedMessages.length === 0) return;
 
