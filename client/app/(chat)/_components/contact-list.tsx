@@ -11,6 +11,7 @@ import { ModeToggle } from '@/components/shared/mode-toggle';
 import { useCurrentContact } from '@/hooks/use-current';
 import { useAuth } from '@/hooks/use-auth';
 import { format } from 'date-fns';
+import { CONST } from '@/lib/constants';
 
 interface Props {
     contacts: IUser[],
@@ -66,8 +67,16 @@ const ContactList: FC<Props> = ({contacts}) => {
                     </div>
 
                     <div>
-                        <h2 className='capitalize line-clamp-1 text-sm'>{contact.email.split('@')[0]}</h2>
-                        <p className='text-xs line-clamp-1 text-muted-foreground'>
+                        <h2 className='capitalize line-clamp-1 text-sm'>
+                            {contact.email.split('@')[0]}
+                        </h2>
+                        <p className={cn('text-xs line-clamp-1',
+                            contact.lastMessage 
+                                ? contact.lastMessage.status !== CONST.READ 
+                                    ? 'text-foreground' 
+                                    : 'text-muted-foreground'
+                                : 'text-muted-foreground'
+                        )}>
                             {
                                 contact.lastMessage ? (
                                     sliceText(contact.lastMessage.text, 25)
