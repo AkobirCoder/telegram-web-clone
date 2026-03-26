@@ -23,7 +23,7 @@ const MessageCard: FC<Props> = ({message}) => {
             <div className={cn('relative inline p-2.5 pr-12 max-w-full', 
                 message.receiver._id === currentContact?._id 
                 ? 'bg-primary' 
-                : 'bg-secondary-foreground/20 border border-zinc-400 dark:border-0'
+                : 'bg-secondary-foreground/20'
             )}>
                 <p className={cn('text-sm', 
                     message.receiver._id !== currentContact?._id 
