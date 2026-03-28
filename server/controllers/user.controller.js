@@ -188,7 +188,7 @@ class UserController {
             const {messageId} = req.params;
             const updatedMessage = await messageModel.findByIdAndUpdate(messageId, {text}, {returnDocument: 'after'});
 
-            res.status(200).json({updatedMessage});
+            res.status(200).json({message: 'Message updated successfully', updatedMessage});
         } catch (error) {
             next(error);
         }
@@ -215,9 +215,9 @@ class UserController {
     async deleteMessage(req, res, next) {
         try {
             const {messageId} = req.params;
-            await messageModel.findByIdAndDelete(messageId);
+            const deletedMessage = await messageModel.findByIdAndDelete(messageId);
 
-            res.status(200).json({message: "Message deleted successfully"});
+            res.status(200).json({deletedMessage, message: "Message deleted successfully"});
         } catch (error) {
             next(error);
         }
