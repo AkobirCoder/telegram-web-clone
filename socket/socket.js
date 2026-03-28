@@ -60,6 +60,22 @@ io.on('connection', (socket) => {
         }
     });
 
+    socket.on('updateMessage', ({updatedMessage, receiver, sender}) => {
+        const receiverSocketId = getSocketId(receiver._id);
+
+        if (receiverSocketId) {
+            socket.to(receiverSocketId).emit('getUpdatedMessage', {updatedMessage, receiver, sender});
+        }
+    });
+
+    socket.on('deleteMessage', ({deletedMessage, filteredMessages, receiver, sender}) => {
+        const receiverSocketId = getSocketId(receiver._id);
+
+        if (receiverSocketId) {
+            socket.to(receiverSocketId).emit('getDeletedMessage', {deletedMessage, filteredMessages, sender});
+        }
+    });
+
     socket.on('disconnect', () => {
         console.log('User disconnected', socket.id);
 
