@@ -14,27 +14,41 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { useTheme } from 'next-themes';
 import { useLoading } from '@/hooks/use-loading';
 import { IMessage } from '@/types';
+import { useCurrentContact } from '@/hooks/use-current';
 
 interface Props {
-    messageForm: UseFormReturn<z.infer<typeof messageSchema>>,
-    onSendMessage: (values: z.infer<typeof messageSchema>) => Promise<void>,
-    onReadMessages: () => Promise<void>,
     messages: IMessage[],
+    messageForm: UseFormReturn<z.infer<typeof messageSchema>>,
+    onSubmitMessage: (values: z.infer<typeof messageSchema>) => Promise<void>,
+    onReadMessages: () => Promise<void>,
+    onReactionMessage: (reaction: string, messageId: string) => Promise<void>,
+    onDeleteMessage: (messageId: string) => Promise<void>,
 }
 
-const Chat: FC<Props> = ({messageForm, onSendMessage, messages, onReadMessages}) => {
+const Chat: FC<Props> = ({messages, messageForm, onSubmitMessage, onReadMessages, onReactionMessage, onDeleteMessage}) => {
     const {resolvedTheme} = useTheme();
 
     const {loadMessages} = useLoading();
+
+    const {editedMessage} = useCurrentContact();
 
     const inputRef = useRef<HTMLInputElement | null>(null);
 
     const scrollRef = useRef<HTMLFormElement | null>(null);
 
     useEffect(() => {
-        scrollRef.current?.scrollIntoView({behavior: 'smooth'})
+        scrollRef.current?.scrollIntoView({behavior: 'smooth'});
+
         onReadMessages();
     }, [messages]);
+
+    useEffect(() => {
+        if (editedMessage) {
+            messageForm.setValue('text', editedMessage.text);
+
+            scrollRef.current?.scrollIntoView({behavior: 'smooth'});
+        }
+    }, [editedMessage]);
 
     const handleEmojiSelect = (emoji: string) => {
         const input = inputRef.current;
@@ -76,6 +90,8 @@ const Chat: FC<Props> = ({messageForm, onSendMessage, messages, onReadMessages})
                             <MessageCard
                                 key={message._id}
                                 message={message}
+                                onReactionMessage={onReactionMessage}
+                                onDeleteMessage={onDeleteMessage}
                             />
                         )
                     })
@@ -88,7 +104,7 @@ const Chat: FC<Props> = ({messageForm, onSendMessage, messages, onReadMessages})
                         <div className='w-full h-[88vh] flex items-center justify-center'>
                             <div
                                 className='text-[100px] cursor-pointer'
-                                onClick={() => onSendMessage({text: '👋'})}
+                                onClick={() => onSubmitMessage({text: '👋'})}
                             >
                                 👋
                             </div>
@@ -101,7 +117,7 @@ const Chat: FC<Props> = ({messageForm, onSendMessage, messages, onReadMessages})
             {/* --- Message input --- */}
             <Form {...messageForm}>
                 <form 
-                    onSubmit={messageForm.handleSubmit(onSendMessage)} 
+                    onSubmit={messageForm.handleSubmit(onSubmitMessage)} 
                     className={`
                         flex items-center w-full p-2 
                         sticky z-30 bottom-0 
