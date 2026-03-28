@@ -9,6 +9,7 @@ const messageSchema = new Schema (
         media: { type: String },
         status: { type: String, enum: [CONST.DELIVERED, CONST.READ, CONST.SENT], default: CONST.SENT },
         reaction: { type: String },
+        editedStatus: {type: Boolean},
     },
     { timestamps: true },
 );
