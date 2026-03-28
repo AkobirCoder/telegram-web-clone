@@ -31,4 +31,5 @@ export interface IMessage {
     createdAt: string,
     updatedAt: string,
     status: string,
+    editedStatus: boolean,
 }
