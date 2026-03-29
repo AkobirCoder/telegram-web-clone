@@ -29,7 +29,7 @@ export default function RootLayout({
             <QueryProvider>
                 <html lang="en" suppressHydrationWarning>
                     <body
-                        className={`${spaceGrotesk.className} antialiased`} suppressHydrationWarning
+                        className={`${spaceGrotesk.className} antialiased sidebar-custom-scrollbar`} suppressHydrationWarning
                     >
                         <ThemeProvider
                             attribute={'class'}
