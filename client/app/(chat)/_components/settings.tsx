@@ -175,13 +175,7 @@ const Settings = () => {
                     </SheetHeader>
 
                     <Separator className='my-2' />
-                        {/* <UploadDropzone 
-                            endpoint={'imageUploader'}
-                            onClientUploadComplete={res => {
-                                console.log(res);
-                            }}
-                            config={{appendOnPaste: true, mode: 'auto'}}
-                        /> */}
+                    
                     <div className='mx-auto w-1/2 h-36 relative'>
                         <Avatar className='w-full h-36'>
                             <AvatarImage 
@@ -210,9 +204,6 @@ const Settings = () => {
                                 mode: 'auto',
                             }}
                         />
-                        {/* <Button size={'icon'} className='absolute right-5 bottom-0 rounded-full'>
-                            <Upload size={16} />
-                        </Button> */}
                     </div>
 
                     <Accordion type="single" collapsible defaultValue="item-1" className='mt-4'>
