@@ -5,14 +5,23 @@ import { Separator } from '@/components/ui/separator';
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { useAuth } from '@/hooks/use-auth';
 import { useCurrentContact } from '@/hooks/use-current';
+import { useLoading } from '@/hooks/use-loading';
+import { sliceText } from '@/lib/utils';
+import { IMessage } from '@/types';
 import { Settings2 } from 'lucide-react';
 import Image from 'next/image';
-import React from 'react';
+import React, { FC } from 'react';
 
-const TopChat = () => {
+interface Props {
+    messages: IMessage[],
+}
+
+const TopChat: FC<Props> = ({messages}) => {
     const {currentContact} = useCurrentContact();
 
     const {onlineUsers} = useAuth();
+
+    const {typing} = useLoading();
 
     return (
         <div 
@@ -37,40 +46,41 @@ const TopChat = () => {
                 <div className='ml-2'>
                     <h2 className='font-medium text-sm'>{currentContact?.email}</h2>
                     {/* --- Is typing... --- */}
-                    {/* <div className='text-xs flex items-center gap-1 text-muted-foreground'>
-                        <p className='text-secondary-foreground animate-pulse line-clamp-1'>
-                            Hello world
-                        </p>
-                        <div className='self-end mb-1'>
-                            <div className='flex justify-center items-center gap-1'>
-                                <div className='w-1 h-1 bg-secondary-foreground rounded-full animate-bounce [animate-delay: -0.3s]'></div>
-                                <div className='w-1 h-1 bg-secondary-foreground rounded-full animate-bounce [animate-delay: -0.10s]'></div>
-                                <div className='w-1 h-1 bg-secondary-foreground rounded-full animate-bounce [animate-delay: -0.15s]'></div>
+                    {
+                        typing.length > 0 ? (
+                            <div className='text-xs flex items-center gap-1 text-muted-foreground'>
+                                <p className='text-secondary-foreground animate-pulse line-clamp-1'>
+                                    {sliceText(typing, 10)}
+                                </p>
+                                <div className='self-end mb-1'>
+                                    <div className='flex justify-center items-center gap-1'>
+                                        <div className='w-1 h-1 bg-secondary-foreground rounded-full animate-bounce [animate-delay:-0.3s]'></div>
+                                        <div className='w-1 h-1 bg-secondary-foreground rounded-full animate-bounce [animate-delay:-0.10s]'></div>
+                                        <div className='w-1 h-1 bg-secondary-foreground rounded-full animate-bounce [animate-delay:-0.15s]'></div>
+                                    </div>
+                                </div>
                             </div>
-                        </div>
-                    </div> */}
+                        ) : (
+                            <p className='text-xs'>
+                                {
+                                    onlineUsers.some((user) => user._id === currentContact?._id) ? (
+                                        <>
+                                            {/* --- Online --- */}
+                                            <span className='text-green-500'>●</span> Online
+                                            {/* --- Online --- */}
+                                        </>
+                                    ) : (
+                                        <>
+                                            {/* --- Offline --- */}
+                                            <span className='text-muted-foreground'>●</span> Last seen recently
+                                            {/* --- Offline --- */}
+                                        </>
+                                    )
+                                }
+                            </p>
+                        )
+                    }
                     {/* --- Is typing... --- */}
-
-                    <p className='text-xs'>
-                        {
-                            onlineUsers.some((user) => user._id === currentContact?._id) ? (
-                                <>
-                                    {/* --- Online --- */}
-                                    <span className='text-green-500'>●</span> Online
-                                    {/* --- Online --- */}
-                                </>
-                            ) : (
-                                <>
-                                    {/* --- Offline --- */}
-                                    <span className='text-muted-foreground'>●</span> Last seen recently
-                                    {/* --- Offline --- */}
-                                </>
-                            )
-                        }
-                        
-
-                        
-                    </p>
                 </div>
             </div>
 
@@ -85,8 +95,7 @@ const TopChat = () => {
                     </Button>
                 </SheetTrigger>
                 <SheetContent 
-                    className='p-4 border-l border-l-zinc-300 dark:border-l-zinc-700' 
-                    aria-describedby='undefined'
+                    className='w-80 p-4 border-l border-l-zinc-300 dark:border-l-zinc-700 overflow-y-scroll sidebar-custom-scrollbar' 
                 >
                     <SheetHeader className='p-0'>
                         <SheetTitle>Contact info</SheetTitle>
@@ -151,74 +160,24 @@ const TopChat = () => {
 
                     <Separator className='my-2' />
 
-                    <h2 className='text-xl'>Image</h2>
-                    <ScrollArea className='h-63 w-full'>
-                        <div className='grid grid-cols-2 gap-2 pr-4'>
-                            <div className='w-full h-36 relative'>
-                                <Image 
-                                    src={'https://github.com/shadcn.png'}
-                                    alt={'https://github.com/shadcn.png'}
-                                    fill
-                                    sizes="(max-width: 768px) 100vw, 50vw"
-                                    className='object-cover rounded-md'
-                                />
-                            </div>
-                            <div className='w-full h-36 relative'>
-                                <Image 
-                                    src={'https://github.com/shadcn.png'}
-                                    alt={'https://github.com/shadcn.png'}
-                                    fill
-                                    sizes="(max-width: 768px) 100vw, 50vw"
-                                    className='object-cover rounded-md'
-                                />
-                            </div>
-                            <div className='w-full h-36 relative'>
-                                <Image 
-                                    src={'https://github.com/shadcn.png'}
-                                    alt={'https://github.com/shadcn.png'}
-                                    fill
-                                    sizes="(max-width: 768px) 100vw, 50vw"
-                                    className='object-cover rounded-md'
-                                />
-                            </div>
-                            <div className='w-full h-36 relative'>
-                                <Image 
-                                    src={'https://github.com/shadcn.png'}
-                                    alt={'https://github.com/shadcn.png'}
-                                    fill
-                                    sizes="(max-width: 768px) 100vw, 50vw"
-                                    className='object-cover rounded-md'
-                                />
-                            </div>
-                            <div className='w-full h-36 relative'>
-                                <Image 
-                                    src={'https://github.com/shadcn.png'}
-                                    alt={'https://github.com/shadcn.png'}
-                                    fill
-                                    sizes="(max-width: 768px) 100vw, 50vw"
-                                    className='object-cover rounded-md'
-                                />
-                            </div>
-                            <div className='w-full h-36 relative'>
-                                <Image 
-                                    src={'https://github.com/shadcn.png'}
-                                    alt={'https://github.com/shadcn.png'}
-                                    fill
-                                    sizes="(max-width: 768px) 100vw, 50vw"
-                                    className='object-cover rounded-md'
-                                />
-                            </div>
-                            <div className='w-full h-36 relative'>
-                                <Image 
-                                    src={'https://github.com/shadcn.png'}
-                                    alt={'https://github.com/shadcn.png'}
-                                    fill
-                                    sizes="(max-width: 768px) 100vw, 50vw"
-                                    className='object-cover rounded-md'
-                                />
-                            </div>
-                        </div>
-                    </ScrollArea>
+                    <h2 className='text-xl'>Images</h2>
+                    <div className='grid grid-cols-2 gap-2'>
+                        {
+                            messages.filter((message) => message.image).map((msg) => {
+                                return (
+                                    <div key={msg._id} className='w-full h-36 relative'>
+                                        <Image 
+                                            src={msg.image}
+                                            alt={msg._id}
+                                            fill
+                                            sizes="(max-width: 768px) 100vw, 50vw"
+                                            className='object-cover rounded-md'
+                                        />
+                                    </div>
+                                )
+                            })
+                        }
+                    </div>
                 </SheetContent>
             </Sheet>
         </div>
