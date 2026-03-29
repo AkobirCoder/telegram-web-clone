@@ -76,6 +76,14 @@ io.on('connection', (socket) => {
         }
     });
 
+    socket.on('typing', ({receiver, sender, message}) => {
+        const receiverSocketId = getSocketId(receiver._id);
+
+        if (receiverSocketId) {
+            socket.to(receiverSocketId).emit('getTyping', {sender, message});
+        }
+    });
+
     socket.on('disconnect', () => {
         console.log('User disconnected', socket.id);
 
