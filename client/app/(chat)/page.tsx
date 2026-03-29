@@ -1,7 +1,7 @@
 'use client'
 
 import { Loader2 } from 'lucide-react';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { ChangeEvent, useEffect, useRef, useState } from 'react';
 import ContactList from './_components/contact-list';
 import { useRouter, useSearchParams } from 'next/navigation';
 import AddContact from './_components/add-contact';
@@ -30,6 +30,7 @@ interface GetSocketType {
     filteredMessages: IMessage[],
     receiver: IUser,
     sender: IUser,
+    message: string,
 }
 
 const HomePage = () => {
@@ -43,7 +44,7 @@ const HomePage = () => {
 
     const {currentContact, editedMessage, setEditedMessage} = useCurrentContact(); 
 
-    const {setCreating, setLoading, setLoadMessages, isLoading} = useLoading();
+    const {setCreating, setLoading, setLoadMessages, isLoading, setTyping} = useLoading();
 
     const [contacts, setContacts] = useState<IUser[]>([]);
 
@@ -152,11 +153,25 @@ const HomePage = () => {
             });
 
             socket.current?.on('getNewMessage', ({newMessage, receiver, sender}: GetSocketType) => {
-                setMessages((prevState) => {
-                    const isExist = prevState.some((item) => item._id === newMessage._id);
+                console.log(newMessage);
 
-                    return isExist ? prevState : [...prevState, newMessage];
-                }); 
+                console.log('CONTACT_ID', CONTACT_ID);
+
+                setTyping('');
+
+                // setMessages((prevState) => {
+                //     const isExist = prevState.some((item) => item._id === newMessage._id);
+
+                //     return isExist ? prevState : [...prevState, newMessage];
+                // });
+
+                if (CONTACT_ID === sender._id) {
+                    setMessages((prevState) => {
+                        const isExist = prevState.some((item) => item._id === newMessage._id);
+
+                        return isExist ? prevState : [...prevState, newMessage];
+                    });
+                }
 
                 setContacts((prevState) => {
                     return prevState.map((contact) => {
@@ -195,6 +210,8 @@ const HomePage = () => {
             });
 
             socket.current?.on('getUpdatedMessage', ({updatedMessage, receiver, sender}: GetSocketType) => {
+                setTyping('');
+
                 setMessages((prevState) => {
                     return prevState.map((item) => {
                         return item._id === updatedMessage._id
@@ -244,6 +261,12 @@ const HomePage = () => {
                             : item;
                     });
                 });
+            });
+
+            socket.current?.on('getTyping', ({sender, message}: GetSocketType) => {
+                if (CONTACT_ID === sender._id) {
+                    setTyping(message);
+                }
             });
         }
     }, [session?.currentUser, socket, CONTACT_ID]);
@@ -505,10 +528,18 @@ const HomePage = () => {
         }
     }
 
+    const onTyping = (event: ChangeEvent<HTMLInputElement>) => {
+        socket.current?.emit('typing', {
+            receiver: currentContact,
+            sender: session?.currentUser,
+            message: event.target.value,
+        });
+    }
+
     return (
         <>
             {/* --- Sidebar --- */}
-            <div className='w-80 h-screen border-r border-r-zinc-300 dark:border-r-zinc-700 fixed inset-0 z-50'>
+            <div className='w-80 h-screen border-r border-r-zinc-300 dark:border-r-zinc-700 fixed inset-0 z-50 overflow-y-scroll sidebar-custom-scrollbar'>
                 {/* --- Loading --- */}
                 {
                     isLoading && (
@@ -545,7 +576,7 @@ const HomePage = () => {
                     currentContact?._id && (
                         <div className='w-full relative'>
                             {/* --- Top chat --- */}
-                            <TopChat />
+                            <TopChat messages={messages} />
                             {/* --- Top chat --- */}
 
                             {/* --- Chat message --- */}
@@ -556,6 +587,7 @@ const HomePage = () => {
                                 onReadMessages={onReadMessages}
                                 onReactionMessage={onReactionMessage}
                                 onDeleteMessage={onDeleteMessage}
+                                onTyping={onTyping}
                             />
                             {/* --- Chat message --- */}
                         </div>
