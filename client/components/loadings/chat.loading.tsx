@@ -11,10 +11,6 @@ const ChatLoading = () => {
             <MessageLoading />
             <MessageLoading isReceived />
             <MessageLoading />
-            <MessageLoading />
-            <MessageLoading isReceived />
-            <MessageLoading />
-            <MessageLoading />
         </>
     );
 }
