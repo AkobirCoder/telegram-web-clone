@@ -5,7 +5,7 @@ import { Form, FormControl, FormField, FormItem } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { messageSchema } from '@/lib/validation';
 import { Paperclip, Send, Smile } from 'lucide-react';
-import React, { FC, useEffect, useRef } from 'react';
+import React, { ChangeEvent, FC, useEffect, useRef, useState } from 'react';
 import { UseFormReturn } from 'react-hook-form';
 import z from 'zod';
 import emojies from '@emoji-mart/data';
@@ -15,6 +15,8 @@ import { useTheme } from 'next-themes';
 import { useLoading } from '@/hooks/use-loading';
 import { IMessage } from '@/types';
 import { useCurrentContact } from '@/hooks/use-current';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { UploadDropzone } from '@/lib/uploadthing';
 
 interface Props {
     messages: IMessage[],
@@ -23,14 +25,17 @@ interface Props {
     onReadMessages: () => Promise<void>,
     onReactionMessage: (reaction: string, messageId: string) => Promise<void>,
     onDeleteMessage: (messageId: string) => Promise<void>,
+    onTyping: (event: ChangeEvent<HTMLInputElement>) => void,
 }
 
-const Chat: FC<Props> = ({messages, messageForm, onSubmitMessage, onReadMessages, onReactionMessage, onDeleteMessage}) => {
+const Chat: FC<Props> = ({messages, messageForm, onSubmitMessage, onReadMessages, onReactionMessage, onDeleteMessage, onTyping}) => {
+    const [open, setOpen] = useState(false);
+
     const {resolvedTheme} = useTheme();
 
     const {loadMessages} = useLoading();
 
-    const {editedMessage} = useCurrentContact();
+    const {editedMessage, setEditedMessage} = useCurrentContact();
 
     const inputRef = useRef<HTMLInputElement | null>(null);
 
@@ -77,8 +82,21 @@ const Chat: FC<Props> = ({messages, messageForm, onSubmitMessage, onReadMessages
             <div className='flex-1 overflow-y-auto'>
                 {/* --- Loading --- */}
                 {
-                    loadMessages && (
+                    loadMessages ? (
                         <ChatLoading />
+                    ) : (
+                        //* --- Start conversation --- *//
+                        messages.length === 0 && (
+                            <div className='w-full h-[88vh] flex items-center justify-center'>
+                                <div
+                                    className='text-[100px] cursor-pointer'
+                                    onClick={() => onSubmitMessage({text: '👋'})}
+                                >
+                                    👋
+                                </div>
+                            </div>
+                        )
+                        //* --- Start conversation --- *//
                     )
                 }
                 {/* --- Loading --- */}
@@ -97,21 +115,6 @@ const Chat: FC<Props> = ({messages, messageForm, onSubmitMessage, onReadMessages
                     })
                 }
                 {/* --- Messages --- */}
-
-                {/* --- Start conversation --- */}
-                {
-                    messages.length === 0 && (
-                        <div className='w-full h-[88vh] flex items-center justify-center'>
-                            <div
-                                className='text-[100px] cursor-pointer'
-                                onClick={() => onSubmitMessage({text: '👋'})}
-                            >
-                                👋
-                            </div>
-                        </div>
-                    )
-                }
-                {/* --- Start conversation --- */}
             </div>
 
             {/* --- Message input --- */}
@@ -126,14 +129,34 @@ const Chat: FC<Props> = ({messages, messageForm, onSubmitMessage, onReadMessages
                     `}
                     ref={scrollRef}
                 >
-                    <Button 
-                        size={'icon'} 
-                        className='h-9 border-r-0 border-zinc-300 dark:border-0' 
-                        type='button' 
-                        variant={'secondary'}
-                    >
-                        <Paperclip />
-                    </Button>
+                    <Dialog open={open} onOpenChange={setOpen}>
+                        <DialogTrigger asChild>
+                            <Button 
+                                size={'icon'} 
+                                className='h-9 border-r-0 border-zinc-300 dark:border-0' 
+                                type='button' 
+                                variant={'secondary'}
+                            >
+                                <Paperclip />
+                            </Button>
+                        </DialogTrigger>
+                        <DialogContent className='rounded-none'>
+                            <DialogHeader>
+                                <DialogTitle />
+                            </DialogHeader>
+                            <UploadDropzone 
+                                endpoint={'imageUploader'}
+                                onClientUploadComplete={(res) => {
+                                    onSubmitMessage({text: '', image: res[0].ufsUrl});
+                                    setOpen(false);
+                                }}
+                                config={{
+                                    appendOnPaste: true,
+                                    mode: 'auto',
+                                }}
+                            />
+                        </DialogContent>
+                    </Dialog>
                     <FormField
                         control={messageForm.control}
                         name='text'
@@ -149,7 +172,11 @@ const Chat: FC<Props> = ({messages, messageForm, onSubmitMessage, onReadMessages
                                         `}
                                         placeholder='Type a message'
                                         value={field.value}
-                                        onChange={(e) => field.onChange(e.target.value)}
+                                        onChange={(event) => {
+                                            field.onChange(event.target.value);
+                                            onTyping(event);
+                                            if (event.target.value === '') setEditedMessage(null);
+                                        }}
                                         onBlur={() => field.onBlur()}
                                         ref={inputRef}
                                     />
