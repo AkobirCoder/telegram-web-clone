@@ -47,20 +47,43 @@ const TopChat: FC<Props> = ({messages}) => {
                     <h2 className='font-medium text-sm'>{currentContact?.email}</h2>
                     {/* --- Is typing... --- */}
                     {
-                        typing.length > 0 ? (
-                            <div className='text-xs flex items-center gap-1 text-muted-foreground'>
-                                <p className='text-secondary-foreground animate-pulse line-clamp-1'>
-                                    {sliceText(typing, 10)}
-                                </p>
-                                <div className='self-end mb-1'>
-                                    <div className='flex justify-center items-center gap-1'>
-                                        <div className='w-1 h-1 bg-secondary-foreground rounded-full animate-bounce [animate-delay:-0.3s]'></div>
-                                        <div className='w-1 h-1 bg-secondary-foreground rounded-full animate-bounce [animate-delay:-0.10s]'></div>
-                                        <div className='w-1 h-1 bg-secondary-foreground rounded-full animate-bounce [animate-delay:-0.15s]'></div>
+                        currentContact?._id === typing?.sender?._id
+                            ? typing.message.length > 0 && (
+                                <div className='text-xs flex items-center gap-1 text-muted-foreground'>
+                                    <p className='text-secondary-foreground animate-pulse line-clamp-1'>
+                                        {sliceText(typing.message, 10)}
+                                    </p>
+                                    <div className='self-end mb-1'>
+                                        <div className='flex justify-center items-center gap-1'>
+                                            <div className='w-1 h-1 bg-secondary-foreground rounded-full animate-bounce [animate-delay:-0.3s]'></div>
+                                            <div className='w-1 h-1 bg-secondary-foreground rounded-full animate-bounce [animate-delay:-0.10s]'></div>
+                                            <div className='w-1 h-1 bg-secondary-foreground rounded-full animate-bounce [animate-delay:-0.15s]'></div>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        ) : (
+                            )
+                            : typing.message && (
+                                <p className='text-xs'>
+                                    {
+                                        onlineUsers.some((user) => user._id === currentContact?._id) ? (
+                                            <>
+                                                {/* --- Online --- */}
+                                                <span className='text-green-500'>●</span> Online
+                                                {/* --- Online --- */}
+                                            </>
+                                        ) : (
+                                            <>
+                                                {/* --- Offline --- */}
+                                                <span className='text-muted-foreground'>●</span> Last seen recently
+                                                {/* --- Offline --- */}
+                                            </>
+                                        )
+                                    }
+                                </p>
+                            )
+                    }
+                    {
+                        !typing.message && (
                             <p className='text-xs'>
                                 {
                                     onlineUsers.some((user) => user._id === currentContact?._id) ? (
