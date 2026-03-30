@@ -168,7 +168,7 @@ const Settings = () => {
             </Popover>
             
             <Sheet open={isProfileOpen} onOpenChange={setIsProfileOpen}>
-                <SheetContent side='left' className='w-80! p-4 border-r border-r-zinc-300 dark:border-r-zinc-700'>
+                <SheetContent side='left' className='w-80! p-4 border-r border-r-zinc-300 dark:border-r-zinc-700 overflow-y-scroll sidebar-custom-scrollbar'>
                     <SheetHeader className='p-0'>
                         <SheetTitle className='text-2xl'>My profile</SheetTitle>
                         <SheetDescription>Customize profile</SheetDescription>
