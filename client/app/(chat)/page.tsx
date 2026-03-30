@@ -264,6 +264,133 @@ const HomePage = () => {
         }
     }, [session?.currentUser, socket, currentContact?._id]);
 
+    // useEffect(() => {
+    //     if (!session?.currentUser) return;
+
+    //     const handleCreatedUser = (user: IUser) => {
+    //         setContacts((prevState) => {
+    //             const isExist = prevState.some((item) => item._id === user._id);
+    //             return isExist ? prevState : [...prevState, user];
+    //         });
+    //     };
+
+    //     const handleNewMessage = ({newMessage, receiver, sender}: GetSocketType) => {
+    //         setTyping({sender: null, message: ''});
+
+    //         if (currentContact?._id === newMessage.sender._id) {
+    //             setMessages((prevState) => {
+    //                 const isExist = prevState.some((item) => item._id === newMessage._id);
+    //                 return isExist ? prevState : [...prevState, newMessage];
+    //             });
+    //         }
+
+    //         setContacts((prevState) => {
+    //             return prevState.map((contact) => {
+    //                 if (contact._id === sender._id) {
+    //                     return {
+    //                         ...contact,
+    //                         lastMessage: {
+    //                             ...newMessage,
+    //                             status:
+    //                                 currentContact?._id === sender._id
+    //                                     ? CONST.READ
+    //                                     : newMessage.status,
+    //                         },
+    //                     };
+    //                 }
+    //                 return contact;
+    //             });
+    //         });
+
+    //         toast.success(`${sender.email.split('@')[0]} sent you a message`);
+
+    //         if (!receiver.muted) {
+    //             playSound(receiver.notificationSound);
+    //         }
+    //     };
+
+    //     const handleReadMessages = (messages: IMessage[]) => {
+    //         setMessages((prevState) => {
+    //             return prevState.map((item) => {
+    //                 const message = messages.find((msg) => msg._id === item._id);
+    //                 return message ? {...item, status: CONST.READ} : item;
+    //             });
+    //         });
+    //     };
+
+    //     const handleUpdatedMessage = ({updatedMessage, sender}: GetSocketType) => {
+    //         setTyping({sender: null, message: ''});
+
+    //         setMessages((prevState) => {
+    //             return prevState.map((item) =>
+    //                 item._id === updatedMessage._id ? updatedMessage : item
+    //             );
+    //         });
+
+    //         setContacts((prevState) => {
+    //             return prevState.map((item) => {
+    //                 return item._id === sender._id
+    //                     ? {
+    //                         ...item,
+    //                         lastMessage:
+    //                             item.lastMessage?._id === updatedMessage._id
+    //                                 ? updatedMessage
+    //                                 : item.lastMessage,
+    //                     }
+    //                     : item;
+    //             });
+    //         });
+    //     };
+
+    //     const handleDeletedMessage = ({deletedMessage, filteredMessages, sender}: GetSocketType) => {
+    //         setMessages((prevState) =>
+    //             prevState.filter((item) => item._id !== deletedMessage._id)
+    //         );
+
+    //         const lastMessage = filteredMessages.length
+    //             ? filteredMessages[filteredMessages.length - 1]
+    //             : null;
+
+    //         setContacts((prevState) =>
+    //             prevState.map((item) =>
+    //                 item._id === sender._id
+    //                     ? {
+    //                         ...item,
+    //                         lastMessage:
+    //                             item.lastMessage?._id === deletedMessage._id
+    //                                 ? lastMessage
+    //                                 : item.lastMessage,
+    //                     }
+    //                     : item
+    //             )
+    //         );
+    //     };
+
+    //     const handleTyping = ({sender, message}: GetSocketType) => {
+    //         if (currentContact?._id === sender._id) {
+    //             setTyping({sender, message});
+    //         }
+    //     };
+
+    //     // 🔥 attach
+    //     socket.current?.on('getCreatedUser', handleCreatedUser);
+    //     socket.current?.on('getNewMessage', handleNewMessage);
+    //     socket.current?.on('getReadMessages', handleReadMessages);
+    //     socket.current?.on('getUpdatedMessage', handleUpdatedMessage);
+    //     socket.current?.on('getDeletedMessage', handleDeletedMessage);
+    //     socket.current?.on('getTyping', handleTyping);
+
+    //     // 🔥 cleanup (ENG MUHIM)
+    //     return () => {
+    //         socket.current?.off('getCreatedUser', handleCreatedUser);
+    //         socket.current?.off('getNewMessage', handleNewMessage);
+    //         socket.current?.off('getReadMessages', handleReadMessages);
+    //         socket.current?.off('getUpdatedMessage', handleUpdatedMessage);
+    //         socket.current?.off('getDeletedMessage', handleDeletedMessage);
+    //         socket.current?.off('getTyping', handleTyping);
+    //     };
+    // }, [session?.currentUser, currentContact?._id]);
+
     useEffect(() => {
         if (currentContact?._id) {
             getMessages();
