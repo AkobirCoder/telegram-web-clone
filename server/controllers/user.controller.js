@@ -186,7 +186,7 @@ class UserController {
             const {text} = req.body;
 
             const {messageId} = req.params;
-            const updatedMessage = await messageModel.findByIdAndUpdate(messageId, {text}, {returnDocument: 'after'});
+            const updatedMessage = await messageModel.findByIdAndUpdate(messageId, {text, editedStatus: true}, {returnDocument: 'after'});
 
             res.status(200).json({message: 'Message updated successfully', updatedMessage});
         } catch (error) {
