@@ -9,7 +9,7 @@ const messageSchema = new Schema (
         image: { type: String },
         status: { type: String, enum: [CONST.DELIVERED, CONST.READ, CONST.SENT], default: CONST.SENT },
         reaction: { type: String },
-        editedStatus: {type: Boolean},
+        editedStatus: {type: Boolean, default: false},
     },
     { timestamps: true },
 );
