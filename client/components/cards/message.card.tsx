@@ -54,6 +54,11 @@ const MessageCard: FC<Props> = ({message, onReactionMessage, onDeleteMessage}) =
                             ? 'text-zinc-700 dark:text-white'
                             : 'text-white'
                         )}>
+                            {
+                                message.editedStatus && (
+                                    <span className='italic mr-1'>edited</span>
+                                )
+                            }
                             <p>{format(message.updatedAt, 'hh:mm a')}</p>
                             <div className='self-end'>
                                 {
