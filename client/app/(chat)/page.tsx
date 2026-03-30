@@ -54,7 +54,7 @@ const HomePage = () => {
 
     const socket = useRef<ReturnType<typeof io> | null>(null);
 
-    const CONTACT_ID = searchParams.get('chat');
+    // const CONTACT_ID = searchParams.get('chat');
 
     const contactForm = useForm<z.infer<typeof emailSchema>>({
         resolver: zodResolver(emailSchema),
@@ -153,19 +153,13 @@ const HomePage = () => {
             });
 
             socket.current?.on('getNewMessage', ({newMessage, receiver, sender}: GetSocketType) => {
-                console.log(newMessage);
+                // console.log(newMessage);
 
-                console.log('CONTACT_ID', CONTACT_ID);
+                // console.log('CONTACT_ID', CONTACT_ID);
 
-                setTyping('');
+                setTyping({sender: null, message: ''});
 
-                // setMessages((prevState) => {
-                //     const isExist = prevState.some((item) => item._id === newMessage._id);
-
-                //     return isExist ? prevState : [...prevState, newMessage];
-                // });
-
-                if (CONTACT_ID === sender._id) {
+                if (currentContact?._id === newMessage.sender._id) { // faqat contactlar orasida message ma'lumotlarini ko'rsatish
                     setMessages((prevState) => {
                         const isExist = prevState.some((item) => item._id === newMessage._id);
 
@@ -178,7 +172,7 @@ const HomePage = () => {
                         if (contact._id === sender._id) {
                             return {...contact, lastMessage: {
                                 ...newMessage, 
-                                status: CONTACT_ID === sender._id 
+                                status: currentContact?._id === sender._id 
                                     ? CONST.READ 
                                     : newMessage.status
                             }}
@@ -191,8 +185,6 @@ const HomePage = () => {
                 toast.success(`${sender.email.split('@')[0]} sent you a message`);
 
                 if (!receiver.muted) {
-                    // console.log(receiver.notificationSound);
-
                     playSound(receiver.notificationSound);
                 }
             });
@@ -210,7 +202,7 @@ const HomePage = () => {
             });
 
             socket.current?.on('getUpdatedMessage', ({updatedMessage, receiver, sender}: GetSocketType) => {
-                setTyping('');
+                setTyping({sender: null, message: ''});
 
                 setMessages((prevState) => {
                     return prevState.map((item) => {
@@ -218,7 +210,8 @@ const HomePage = () => {
                             ? {
                                 ...item, 
                                 reaction: updatedMessage.reaction, 
-                                text: updatedMessage.text
+                                text: updatedMessage.text,
+                                editedStatus: true,
                             }
                             : item
                     });
@@ -264,12 +257,12 @@ const HomePage = () => {
             });
 
             socket.current?.on('getTyping', ({sender, message}: GetSocketType) => {
-                if (CONTACT_ID === sender._id) {
-                    setTyping(message);
+                if (currentContact?._id === sender._id) {
+                    setTyping({sender, message});
                 }
             });
         }
-    }, [session?.currentUser, socket, CONTACT_ID]);
+    }, [session?.currentUser, socket, currentContact?._id]);
 
     useEffect(() => {
         if (currentContact?._id) {
@@ -364,6 +357,10 @@ const HomePage = () => {
             });
 
             messageForm.reset();
+
+            if (!data.sender.muted) {
+                playSound(data.sender.sendingSound);
+            }
         } catch {
             toast.error('Cannot send message');
         } finally {
@@ -387,6 +384,7 @@ const HomePage = () => {
                         ? {
                             ...item,
                             text: data.updatedMessage.text,
+                            editedStatus: true,
                         }
                         : item;
                 });
