@@ -17,6 +17,7 @@ import { IMessage } from '@/types';
 import { useCurrentContact } from '@/hooks/use-current';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { UploadDropzone } from '@/lib/uploadthing';
+import { useSession } from 'next-auth/react';
 
 interface Props {
     messages: IMessage[],
@@ -35,11 +36,21 @@ const Chat: FC<Props> = ({messages, messageForm, onSubmitMessage, onReadMessages
 
     const {loadMessages} = useLoading();
 
-    const {editedMessage, setEditedMessage} = useCurrentContact();
+    const {editedMessage, setEditedMessage, currentContact} = useCurrentContact();
+
+    const {data: session} = useSession();
 
     const inputRef = useRef<HTMLInputElement | null>(null);
 
     const scrollRef = useRef<HTMLFormElement | null>(null);
+
+    // chatni filtrlash va duplicate message larni olib tashlash, bir user yuborgan message shu userning boshqa contactiga tushmaydi
+
+    const filteredMessages = messages.filter((message, index, self) => {
+        return ((message.sender._id === session?.currentUser?._id && message.receiver._id === currentContact?._id) || 
+            (message.sender._id === currentContact?._id && message.receiver._id === session?.currentUser?._id)) &&
+        index === self.findIndex((m) => m._id === message._id); // duplicate ni oldini olish
+    });
 
     useEffect(() => {
         scrollRef.current?.scrollIntoView({behavior: 'smooth'});
@@ -103,10 +114,10 @@ const Chat: FC<Props> = ({messages, messageForm, onSubmitMessage, onReadMessages
 
                 {/* --- Messages --- */}
                 {
-                    messages.map((message) => {
+                    filteredMessages.map((message, index) => {
                         return (
                             <MessageCard
-                                key={message._id}
+                                key={index}
                                 message={message}
                                 onReactionMessage={onReactionMessage}
                                 onDeleteMessage={onDeleteMessage}
