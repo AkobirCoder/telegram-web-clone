@@ -35,12 +35,12 @@ const MessageCard: FC<Props> = ({message, onReactionMessage, onDeleteMessage}) =
                     )}>
                         {
                             message.image && (
-                                <Image src={message.image} alt={message.image} width={300} height={250} />
+                                <Image className="w-full h-auto mb-1" src={message.image} alt={message.image} width={300} height={250} />
                             )
                         }
                         {
                             message.text.length > 0 && (
-                                <p className={cn('text-sm', 
+                                <p className={cn('text-sm mb-1', 
                                     message.receiver._id !== currentContact?._id 
                                     ? 'text-zinc-700 dark:text-white' 
                                     : 'text-white'
