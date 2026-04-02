@@ -1,20 +1,38 @@
 # 🚀 Telegram Web Clone
 
-<table align="center">
-  <tr>
-    <td>
-        <img 
-            src="https://upload.wikimedia.org/wikipedia/commons/8/82/Telegram_logo.svg"
-            width="100" 
-        />
-        <span style="font-size:30px;">⚡</span>
-        <img 
-            src="https://raw.githubusercontent.com/devicons/devicon/master/icons/nextjs/nextjs-original.svg" 
-            width="100" 
-        />
-    </td>
-  </tr>
-</table>
+<div align="center">
+
+  <h2>🚀 Telegram × Next.js Integration</h2>
+
+  <div style="
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+    gap: 20px;
+    margin-top: 20px;
+  ">
+
+    <img 
+      src="https://upload.wikimedia.org/wikipedia/commons/8/82/Telegram_logo.svg"
+      width="90"
+      style="filter: drop-shadow(0 4px 6px rgba(0,0,0,0.2));"
+    />
+
+    <span style="font-size: 32px;">⚡</span>
+
+    <img 
+      src="https://raw.githubusercontent.com/devicons/devicon/master/icons/nextjs/nextjs-original.svg"
+      width="90"
+      style="filter: drop-shadow(0 4px 6px rgba(0,0,0,0.2));"
+    />
+
+  </div>
+
+  <p style="margin-top:15px; font-size:18px;">
+    Telegram Web Clone built with Next.js
+  </p>
+
+</div>
 
 ---
 
