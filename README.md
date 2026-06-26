@@ -2,7 +2,7 @@
 
 <h2 align="center">🚀 Telegram × Next.js Integration</h2>
 
-<p align="center">
+<!-- <p align="center">
   <img 
     src="https://upload.wikimedia.org/wikipedia/commons/8/82/Telegram_logo.svg"
     width="80"
@@ -12,7 +12,26 @@
     src="https://raw.githubusercontent.com/devicons/devicon/master/icons/nextjs/nextjs-original.svg"
     width="80"
   />
-</p>
+</p> -->
+
+<table align="center">
+  <tr>
+    <td>
+        <img 
+            src="https://upload.wikimedia.org/wikipedia/commons/8/82/Telegram_logo.svg"
+            width="80"
+        />
+        &nbsp;&nbsp;&nbsp;
+        <img 
+            src="https://raw.githubusercontent.com/devicons/devicon/master/icons/nextjs/nextjs-original.svg"
+            width="80"
+        />
+    </td>
+    <td style="padding-left: 12px; vertical-align: middle;">
+      <h1 style="margin: 0;">Telegram Web Clone</h1>
+    </td>
+  </tr>
+</table>
 
 <p align="center">
   Telegram Web Clone built with Next.js
