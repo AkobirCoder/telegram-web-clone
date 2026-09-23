@@ -67,7 +67,7 @@ const InformationForm = () => {
                                 <FormControl>
                                     <Input 
                                         className='bg-secondary'
-                                        placeholder='Akobir'
+                                        placeholder='Input your name'
                                         {...field}
                                         value={field.value || ""}
                                         disabled={isPending}
@@ -86,7 +86,7 @@ const InformationForm = () => {
                                 <FormControl>
                                     <Input 
                                         className='bg-secondary'
-                                        placeholder='Usmonov'
+                                        placeholder='Input your lastname'
                                         {...field}
                                         value={field.value || ""}
                                         disabled={isPending}
