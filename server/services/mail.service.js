@@ -36,11 +36,11 @@ class MailService {
     }
 
     async verifyOtp(email, otp) {
-        const otpData = await otpModel.find({email});
+        const otpData = await otpModel.find({ email }).sort({ _id: -1 });
 
-        if (!otpData) throw new BaseError.BadRequest("OTP not found");
+        if (!otpData.length) throw BaseError.BadRequest("OTP not found");
 
-        const currentOtp = otpData[otpData.length - 1];
+        const currentOtp = otpData[0];
 
         if (!currentOtp) throw BaseError.BadRequest("OTP not found");
         
