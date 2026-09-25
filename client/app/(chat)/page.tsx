@@ -3,7 +3,7 @@
 import { Loader2 } from 'lucide-react';
 import React, { ChangeEvent, useEffect, useRef, useState } from 'react';
 import ContactList from './_components/contact-list';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import AddContact from './_components/add-contact';
 import { useCurrentContact } from '@/hooks/use-current';
 import { useForm } from 'react-hook-form';
@@ -39,8 +39,6 @@ const HomePage = () => {
     const {setOnlineUsers} = useAuth();
     
     const {playSound} = useAudio();
-
-    const searchParams = useSearchParams();
 
     const {currentContact, editedMessage, setEditedMessage} = useCurrentContact(); 
 
@@ -126,6 +124,11 @@ const HomePage = () => {
         router.replace('/');
 
         socket.current = io('ws://localhost:5000');
+
+        return () => {
+            socket.current?.disconnect();
+            socket.current = null;
+        };
     }, []);
 
     useEffect(() => {
@@ -137,6 +140,10 @@ const HomePage = () => {
             });
 
             getContacts();
+
+            return () => {
+                socket.current?.off('getOnlineUsers');
+            };
         }
     }, [session?.currentUser]);
 
@@ -201,7 +208,7 @@ const HomePage = () => {
                 });
             });
 
-            socket.current?.on('getUpdatedMessage', ({updatedMessage, receiver, sender}: GetSocketType) => {
+            socket.current?.on('getUpdatedMessage', ({updatedMessage, sender}: GetSocketType) => {
                 setTyping({sender: null, message: ''});
 
                 setMessages((prevState) => {
@@ -261,6 +268,15 @@ const HomePage = () => {
                     setTyping({sender, message});
                 }
             });
+
+            return () => {
+                socket.current?.off('getCreatedUser');
+                socket.current?.off('getNewMessage');
+                socket.current?.off('getReadMessages');
+                socket.current?.off('getUpdatedMessage');
+                socket.current?.off('getDeletedMessage');
+                socket.current?.off('getTyping');
+            };
         }
     }, [session?.currentUser, socket, currentContact?._id]);
 
