@@ -5,7 +5,13 @@ const mailService = require("../services/mail.service");
 class AuthController {
     async login(req, res, next) {
         try {
-            const {email} = req.body;
+            const email = typeof req.body?.email === 'string'
+                ? req.body.email.trim().toLowerCase()
+                : '';
+
+            if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+                throw BaseError.BadRequest("A valid email is required");
+            }
 
             const existUser = await userModel.findOne({ email });
 
@@ -27,7 +33,14 @@ class AuthController {
 
     async verify(req, res, next) {
         try {
-            const {email, otp} = req.body;
+            const email = typeof req.body?.email === 'string'
+                ? req.body.email.trim().toLowerCase()
+                : '';
+            const otp = typeof req.body?.otp === 'string' ? req.body.otp.trim() : '';
+
+            if (!email || !/^\d{6}$/.test(otp)) {
+                throw BaseError.BadRequest("A valid email and six-digit OTP are required");
+            }
 
             const result = await mailService.verifyOtp(email, otp);
 
