@@ -15,9 +15,10 @@ import { useTheme } from 'next-themes';
 import { useLoading } from '@/hooks/use-loading';
 import { IMessage } from '@/types';
 import { useCurrentContact } from '@/hooks/use-current';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { UploadDropzone } from '@/lib/uploadthing';
 import { useSession } from 'next-auth/react';
+import { toast } from 'sonner';
 
 interface Props {
     messages: IMessage[],
@@ -158,7 +159,18 @@ const Chat: FC<Props> = ({messages, messageForm, onSubmitMessage, onReadMessages
                             <UploadDropzone 
                                 endpoint={'imageUploader'}
                                 onClientUploadComplete={(res) => {
-                                    onSubmitMessage({text: '', image: res[0].ufsUrl});
+                                    const imageUrl = res[0]?.ufsUrl || res[0]?.url;
+
+                                    if (!imageUrl) {
+                                        toast.error('Upload completed without an image URL');
+                                        return;
+                                    }
+
+                                    onSubmitMessage({text: '', image: imageUrl});
+                                    setOpen(false);
+                                }}
+                                onUploadError={(error) => {
+                                    toast.error(error.message || 'Image upload failed');
                                     setOpen(false);
                                 }}
                                 config={{
