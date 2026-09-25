@@ -43,7 +43,9 @@ class UserController {
             const userId = req.user._id;
 
             const contacts = await userModel.findById(userId).populate('contacts');
-            const allContacts = contacts.contacts.map((contact) => {
+            if (!contacts) throw BaseError.Unauthorized();
+
+            const allContacts = (contacts.contacts || []).map((contact) => {
                 return contact.toObject();
             });
 
@@ -71,11 +73,22 @@ class UserController {
     // [POST]
     async createMessage(req, res, next) {
         try {
-            // const {sender, receiver, ...payload} = req.body;
-
             const userId = req.user._id;
+            const {receiver: receiverId, text, image} = req.body || {};
 
-            const createdMessage = await messageModel.create({...req.body, sender: userId});
+            if (!receiverId || (!text?.trim() && !image)) {
+                throw BaseError.BadRequest("A receiver and message content are required");
+            }
+
+            const isContact = await userModel.exists({_id: userId, contacts: receiverId});
+            if (!isContact) throw BaseError.BadRequest("You can only message your contacts");
+
+            const createdMessage = await messageModel.create({
+                receiver: receiverId,
+                text: typeof text === 'string' ? text.trim() : undefined,
+                image,
+                sender: userId,
+            });
 
             const newMessage = await messageModel
                 .findById(createdMessage._id)
@@ -99,13 +112,19 @@ class UserController {
 
     async messageRead(req, res, next) {
         try {
-            const {messages} = req.body;
+            const {messages} = req.body || {};
+            if (!Array.isArray(messages)) throw BaseError.BadRequest("Messages must be an array");
+
             const allMessages = [];
 
             for (const message of messages) {
-                const updatedMessage = await messageModel.findByIdAndUpdate(message._id, {status: CONST.READ}, {returnDocument: 'after'});
+                const updatedMessage = await messageModel.findOneAndUpdate(
+                    {_id: message._id, receiver: req.user._id},
+                    {status: CONST.READ},
+                    {returnDocument: 'after'},
+                );
 
-                allMessages.push(updatedMessage);
+                if (updatedMessage) allMessages.push(updatedMessage);
             }
 
             res.status(201).json({messages: allMessages});
@@ -123,13 +142,14 @@ class UserController {
 
             const contact = await userModel.findOne({email});
 
-            if (!contact) throw BaseError.BadRequest("User with this email does not exist"); 
+            if (!contact) throw BaseError.BadRequest("User with this email does not exist");
 
-            if (user.email === contact.email) throw BaseError.BadRequest("You cannot add yourself as a contact");
+            if (!user) throw BaseError.Unauthorized();
+            if (user._id.equals(contact._id)) throw BaseError.BadRequest("You cannot add yourself as a contact");
 
             const existContact = await userModel.findOne({_id: userId, contacts: contact._id});
 
-            if (existContact) throw BaseError.BadRequest("Contact already exist");
+            if (existContact) throw BaseError.BadRequest("Contact already exists");
             
             await userModel.findByIdAndUpdate(userId, {$push: {contacts: contact._id}});
 
@@ -144,7 +164,16 @@ class UserController {
     async createReaction(req, res, next) {
         try {
             const {messageId, reaction} = req.body;
-            const updatedMessage = await messageModel.findByIdAndUpdate(messageId, {reaction}, {returnDocument: 'after'});
+            if (!messageId || typeof reaction !== 'string') {
+                throw BaseError.BadRequest("A message and reaction are required");
+            }
+
+            const updatedMessage = await messageModel.findOneAndUpdate(
+                {$or: [{_id: messageId, sender: req.user._id}, {_id: messageId, receiver: req.user._id}]},
+                {reaction: reaction.trim()},
+                {returnDocument: 'after'},
+            );
+            if (!updatedMessage) throw BaseError.BadRequest("Message not found");
 
             res.status(201).json({updatedMessage});
         } catch (error) {
@@ -154,7 +183,12 @@ class UserController {
 
     async sendOtp(req, res, next) {
         try {
-            const {email} = req.body;
+            const email = typeof req.body?.email === 'string'
+                ? req.body.email.trim().toLowerCase()
+                : '';
+            if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+                throw BaseError.BadRequest("A valid email is required");
+            }
 
             const existUser = await userModel.findOne({email});
 
@@ -172,8 +206,11 @@ class UserController {
     async updateProfile(req, res, next) {
         try {
             const user = req.user;
+            const {firstName, lastName, bio, avatar, muted, notificationSound, sendingSound} = req.body || {};
 
-            await userModel.findByIdAndUpdate(user._id, req.body);
+            await userModel.findByIdAndUpdate(user._id, {
+                firstName, lastName, bio, avatar, muted, notificationSound, sendingSound,
+            }, {runValidators: true});
 
             res.status(200).json({message: "Profile updated successfully"});
         } catch (error) {
@@ -186,7 +223,16 @@ class UserController {
             const {text} = req.body;
 
             const {messageId} = req.params;
-            const updatedMessage = await messageModel.findByIdAndUpdate(messageId, {text, editedStatus: true}, {returnDocument: 'after'});
+            if (typeof text !== 'string' || !text.trim()) {
+                throw BaseError.BadRequest("Message text is required");
+            }
+
+            const updatedMessage = await messageModel.findOneAndUpdate(
+                {_id: messageId, sender: req.user._id},
+                {text: text.trim(), editedStatus: true},
+                {returnDocument: 'after'},
+            );
+            if (!updatedMessage) throw BaseError.BadRequest("Message not found");
 
             res.status(200).json({message: 'Message updated successfully', updatedMessage});
         } catch (error) {
@@ -196,13 +242,22 @@ class UserController {
 
     async updateEmail(req, res, next) {
         try {
-            const {email, otp} = req.body;
+            const email = typeof req.body?.email === 'string'
+                ? req.body.email.trim().toLowerCase()
+                : '';
+            const otp = typeof req.body?.otp === 'string' ? req.body.otp.trim() : '';
+            if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || !/^\d{6}$/.test(otp)) {
+                throw BaseError.BadRequest("A valid email and six-digit OTP are required");
+            }
+
+            const existingUser = await userModel.findOne({email, _id: {$ne: req.user._id}});
+            if (existingUser) throw BaseError.BadRequest("Email is already in use");
 
             const result = await mailService.verifyOtp(email, otp);
 
             if (result) {
                 const userId = req.user._id;
-                const user = await userModel.findByIdAndUpdate(userId, {email}, {returnDocument: 'after'});
+                const user = await userModel.findByIdAndUpdate(userId, {email}, {returnDocument: 'after', runValidators: true});
 
                 res.status(200).json({message: "Email updated successfully", user});
             }
@@ -215,7 +270,11 @@ class UserController {
     async deleteMessage(req, res, next) {
         try {
             const {messageId} = req.params;
-            const deletedMessage = await messageModel.findByIdAndDelete(messageId);
+            const deletedMessage = await messageModel.findOneAndDelete({
+                _id: messageId,
+                sender: req.user._id,
+            });
+            if (!deletedMessage) throw BaseError.BadRequest("Message not found");
 
             res.status(200).json({deletedMessage, message: "Message deleted successfully"});
         } catch (error) {
@@ -227,6 +286,8 @@ class UserController {
         try {
             const userId = req.user._id;
             await userModel.findByIdAndDelete(userId);
+            await userModel.updateMany({contacts: userId}, {$pull: {contacts: userId}});
+            await messageModel.deleteMany({$or: [{sender: userId}, {receiver: userId}]});
 
             res.status(200).json({message: "User deleted successfully"});
         } catch (error) {
