@@ -11,7 +11,7 @@ import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '
 import { Switch } from '@/components/ui/switch';
 import { axiosClient } from '@/http/axios';
 import { generateToken } from '@/lib/generate-token';
-import { UploadButton, UploadDropzone } from '@/lib/uploadthing';
+import { UploadButton } from '@/lib/uploadthing';
 import { useMutation } from '@tanstack/react-query';
 import { LogIn, Menu, Moon, Settings2, Sun, Upload, UserPlus, Volume2, VolumeOff } from 'lucide-react';
 import { signOut, useSession } from 'next-auth/react';
@@ -46,7 +46,11 @@ const Settings = () => {
             toast.success('Profile updated successfully');
 
             update();
-        }
+        },
+
+        onError: () => {
+            toast.error('Profile image could not be saved');
+        },
     });
 
     const [isProfileOpen, setIsProfileOpen] = useState(false);
@@ -196,8 +200,17 @@ const Settings = () => {
                             content={{button: <Upload size={16} />}}
                             endpoint={'imageUploader'}
                             onClientUploadComplete={(res) => {
-                                // console.log(res);
-                                mutate({avatar: res[0].ufsUrl});
+                                const avatarUrl = res[0]?.ufsUrl || res[0]?.url;
+
+                                if (!avatarUrl) {
+                                    toast.error('Upload completed without an image URL');
+                                    return;
+                                }
+
+                                mutate({avatar: avatarUrl});
+                            }}
+                            onUploadError={(error) => {
+                                toast.error(error.message || 'Profile image upload failed');
                             }}
                             config={{
                                 appendOnPaste: true,
