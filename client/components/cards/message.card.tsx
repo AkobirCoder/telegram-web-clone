@@ -39,7 +39,7 @@ const MessageCard: FC<Props> = ({message, onReactionMessage, onDeleteMessage}) =
                             )
                         }
                         {
-                            message.text.length > 0 && (
+                            message.text && message.text.length > 0 && (
                                 <p className={cn('text-sm mb-1', 
                                     message.receiver._id !== currentContact?._id 
                                     ? 'text-zinc-700 dark:text-white' 
